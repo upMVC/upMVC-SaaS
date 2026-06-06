@@ -1,0 +1,346 @@
+<?php
+/*
+ *   Created on Tue Oct 31 2023
+ *   Copyright (c) 2023 BitsHost
+ *   All rights reserved.
+ *
+ *   Permission is hereby granted, free of charge, to any person obtaining a copy
+ *   of this software and associated documentation files (the "Software"), to deal
+ *   in the Software without restriction, including without limitation the rights
+ *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *   copies of the Software, and to permit persons to whom the Software is
+ *   furnished to do so, subject to the following conditions:
+ *
+ *   The above copyright notice and this permission notice shall be included in all
+ *   copies or substantial portions of the Software.
+ *
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *   SOFTWARE.
+ *   Here you may host your app for free:
+ *   https://bitshost.biz/
+ */
+
+namespace App\Common\Bmvc;
+
+use App\Etc\Database;
+use PDO;
+
+/**
+ * BaseModel
+ */
+class BaseModel
+{
+    /**
+     * @var PDO|null
+     */
+    protected $conn;
+
+    /**
+     * Current scope / tenant ID.
+     *
+     * Set this when building multi-tenant or multi-org applications so that
+     * the tq*() helpers can automatically inject the scope into every query.
+     *
+     * Usage:
+     *   $model = new Model($tenantId);          // preferred
+     *   $model = new Model(); $model->tenantId = $id;  // also fine
+     */
+    protected int $tenantId = 0;
+
+    /**
+     * Constructor.
+     *
+     * @param int $tenantId  Optional tenant / scope ID. When > 0, tq*() helpers
+     *                       will inject it automatically into every query.
+     */
+    public function __construct(int $tenantId = 0)
+    {
+        $this->conn = (new Database())->getConnection();
+
+        // Ensure we never operate with a null connection
+        if ($this->conn === null) {
+            throw new \RuntimeException(
+                'Database connection could not be established. Please check DB_* settings in .env or ConfigDatabase. '
+            );
+        }
+
+        if ($tenantId > 0) {
+            $this->tenantId = $tenantId;
+        }
+    }
+
+    /**
+     * Creates a new record in the database.
+     *
+     * @param array  $data  The data to be inserted.
+     * @param string $table The table name (required when using the base implementation;
+     *                      child models that hardcode the table may omit it).
+     * @return int|false The last inserted ID or false on failure.
+     */
+    public function create(array $data, string $table = '')
+    {
+        if (empty($data)) {
+            return false;
+        }
+    
+        $sanitizedData = array_map([$this, 'sanitize'], $data);
+        $placeholders = implode(', ', array_fill(0, count($sanitizedData), '?'));
+        $columns = implode(', ', array_keys($sanitizedData));
+    
+        $stmt = $this->conn->prepare("INSERT INTO $table ($columns) VALUES ($placeholders)");
+        if (!$stmt) {
+            return false;
+        }
+    
+        // Bind parameter with value
+        $i = 1;
+        foreach ($sanitizedData as $value) {
+            $stmt->bindValue($i++, $value);
+        }
+    
+        $success = $stmt->execute();
+        if ($success) {
+            return $this->conn->lastInsertId();
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Reads a record from the database.
+     *
+     * @param int $id The record ID.
+     * @param string $table The table name.
+     * @return array|null The record data or null on failure.
+     */
+    public function read(int $id, string $table = '')
+    {
+        $sanitizedId = $this->sanitize($id);
+        $stmt = $this->conn->prepare("SELECT * FROM $table WHERE id = :id");
+        if (!$stmt) {
+            return null;
+        }
+
+        $stmt->bindParam(':id', $sanitizedId);
+        $stmt->execute();
+        return $stmt->fetch();
+    }
+
+    /**
+     * Reads all records from the database.
+     *
+     * @param string $table The table name.
+     * @return array The records data.
+     */
+    public function readAll(string $table)
+    {
+        $stmt = $this->conn->prepare("SELECT * FROM $table");
+        if (!$stmt) {
+            return [];
+        }
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Reads records from the database with pagination.
+     *
+     * @param string $table The table name.
+     * @param int $page The current page.
+     * @param int $pageSize The number of records per page.
+     * @return array The records data.
+     */
+    public function readWithPagination(string $table, int $page, int $pageSize)
+    {
+        $offset = ($page - 1) * $pageSize;
+        $stmt = $this->conn->prepare("SELECT * FROM $table LIMIT :offset, :pageSize");
+        if (!$stmt) {
+            return [];
+        }
+
+        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
+        $stmt->bindParam(':pageSize', $pageSize, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Updates a record in the database.
+     *
+     * @param int $id The record ID.
+     * @param array $data The data to be updated.
+     * @param string $table The table name.
+     * @return bool True on success, false on failure.
+     */
+    public function update(int $id, array $data, string $table = '')
+    {
+        if (empty($data)) {
+            return false;
+        }
+
+        $sanitizedId = $this->sanitize($id);
+        $sanitizedData = array_map([$this, 'sanitize'], $data);
+        $setClause = implode(', ', array_map(fn($key) => "$key = :$key", array_keys($sanitizedData)));
+
+        $stmt = $this->conn->prepare("UPDATE $table SET $setClause WHERE id = :id");
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bindParam(':id', $sanitizedId);
+        foreach ($sanitizedData as $key => $value) {
+            $stmt->bindValue(":$key", $value);
+        }
+
+        $success = $stmt->execute();
+        $rowCount = $stmt->rowCount();
+        return $rowCount > 0 ? $success : false;
+    }
+
+    /**
+     * Deletes a record from the database.
+     *
+     * @param int $id The record ID.
+     * @param string $table The table name.
+     * @return bool True on success, false on failure.
+     */
+    public function delete(int $id, string $table = '')
+    {
+        $sanitizedId = $this->sanitize($id);
+        $stmt = $this->conn->prepare("DELETE FROM $table WHERE id = :id");
+        if (!$stmt) {
+            return false;
+        }
+
+        $stmt->bindParam(':id', $sanitizedId);
+        $success = $stmt->execute();
+        $rowCount = $stmt->rowCount();
+        return $rowCount > 0 ? $success : false;
+    }
+
+    /**
+     * Destructor.
+     */
+    public function __destruct()
+    {
+        $this->conn = null;
+    }
+
+    /**
+     * Sanitizes the input data to prevent SQL injection and XSS attacks.
+     *
+     * @param mixed $input The input data to be sanitized.
+     * @return mixed The sanitized input (string for strings, array for arrays, original for others).
+     */
+    private function sanitize($input)
+    {
+        if (is_string($input)) {
+            return trim(strip_tags($input));
+        } elseif (is_array($input)) {
+            return array_map([$this, 'sanitize'], $input);
+        } else {
+            return $input;
+        }
+    }
+
+    // =========================================================================
+    // Tenant / scope query guard  (Points 1 & 7 from SaaS adaptation report)
+    // =========================================================================
+
+    /**
+     * Execute a tenant-scoped query safely.
+     *
+     * Rules:
+     *  - SQL MUST contain `:tenant_id` (named placeholder).
+     *  - Do NOT pass `tenant_id` in $params — it is injected automatically.
+     *  - In APP_ENV != production, throws \LogicException if `:tenant_id` is absent.
+     *  - Throws \RuntimeException if $this->tenantId is 0 (called outside tenant context).
+     *
+     * Usage:
+     *   // In any child Model where $this->tenantId has been set:
+     *   $rows = $this->tqAll(
+     *       "SELECT * FROM cars WHERE tenant_id = :tenant_id AND status = :s",
+     *       [':s' => 'available']
+     *   );
+     *
+     * @param  string $sql    SQL with :tenant_id placeholder.
+     * @param  array  $params Other named params (WITHOUT :tenant_id).
+     * @return \PDOStatement  Executed statement ready for fetch*()
+     * @throws \LogicException   In non-production if :tenant_id is absent.
+     * @throws \RuntimeException If tenantId === 0.
+     */
+    protected function tq(string $sql, array $params = []): \PDOStatement
+    {
+        $env = $_ENV['APP_ENV'] ?? getenv('APP_ENV') ?: 'production';
+        if ($env !== 'production' &&
+            !str_contains($sql, ':tenant_id') &&
+            !str_contains($sql, 'tenant_id = ?')) {
+            throw new \LogicException(
+                'Tenant leak risk: query is missing :tenant_id. ' .
+                'Use tq() only for tenant-scoped tables. SQL: ' .
+                substr(preg_replace('/\s+/', ' ', $sql) ?: '', 0, 120)
+            );
+        }
+
+        if ($this->tenantId < 1) {
+            throw new \RuntimeException(
+                'tq() called with tenantId = 0. ' .
+                'Set $this->tenantId before querying tenant data.'
+            );
+        }
+
+        $params[':tenant_id'] = $this->tenantId;
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        return $stmt;
+    }
+
+    /**
+     * Fetch all rows for a tenant-scoped query.
+     *
+     * @param  string $sql
+     * @param  array  $params  (without :tenant_id)
+     * @return array<int, array<string, mixed>>
+     */
+    protected function tqAll(string $sql, array $params = []): array
+    {
+        return $this->tq($sql, $params)->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Fetch a single row for a tenant-scoped query.
+     *
+     * @param  string $sql
+     * @param  array  $params  (without :tenant_id)
+     * @return array<string, mixed>|null
+     */
+    protected function tqOne(string $sql, array $params = []): ?array
+    {
+        $row = $this->tq($sql, $params)->fetch(\PDO::FETCH_ASSOC);
+        return $row ?: null;
+    }
+
+    /**
+     * Execute a tenant-scoped INSERT / UPDATE / DELETE.
+     * Returns the number of affected rows.
+     *
+     * @param  string $sql
+     * @param  array  $params  (without :tenant_id)
+     * @return int
+     */
+    protected function tqExec(string $sql, array $params = []): int
+    {
+        return $this->tq($sql, $params)->rowCount();
+    }
+}
+
+
+
+
+
