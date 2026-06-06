@@ -19,13 +19,6 @@ parameters:
         -
             message: '#Constant THIS_DIR not found#'
             path: src/*
-        # Legacy namespace references in InitMods.php (deprecated, use InitModsImproved)
-        -
-            message: '#Class (Test|Admin|Moda|Suba|User|Userorm|Newmod|Auth|React|Reactb|ReactCrud|Dashboard|Enhanced)\\(Controller|Routes\\Routes) not found#'
-            path: src/Etc/InitMods.php
-        -
-            message: '#Instantiated class (Admin|Test|Moda|Suba|User|Userorm|Newmod|Auth|React|Reactb|ReactCrud|Dashboard|Enhanced)\\Routes\\Routes not found#'
-            path: src/Etc/InitMods.php
         # Router/middleware return type issues - methods work correctly
         -
             message: '#Result of method .* \(void\) is used#'
@@ -45,61 +38,6 @@ parameters:
         -
             message: '#Call to protected method (isActive|dropActive)\(\) of class#'
             path: src/Common/Assets/bv-nav.php
-        # Demo / example modules — scaffolding only, not production code
-        -
-            message: '#.#'
-            path: src/Modules/Test/*
-        -
-            message: '#.#'
-            path: src/Modules/TestApi/*
-        -
-            message: '#.#'
-            path: src/Modules/TestAuth/*
-        -
-            message: '#.#'
-            path: src/Modules/TestBasic/*
-        -
-            message: '#.#'
-            path: src/Modules/TestCrud/*
-        -
-            message: '#.#'
-            path: src/Modules/TestDashboard/*
-        -
-            message: '#.#'
-            path: src/Modules/TestParent/*
-        -
-            message: '#.#'
-            path: src/Modules/Testitems/*
-        -
-            message: '#.#'
-            path: src/Modules/DashboardExample/*
-        -
-            message: '#.#'
-            path: src/Modules/Product/*
-        -
-            message: '#.#'
-            path: src/Modules/Moda/*
-        -
-            message: '#.#'
-            path: src/Modules/React/*
-        -
-            message: '#.#'
-            path: src/Modules/Reactcrud/*
-        -
-            message: '#.#'
-            path: src/Modules/Reactnb/*
-        -
-            message: '#.#'
-            path: src/Modules/Userorm/*
-        -
-            message: '#.#'
-            path: src/Modules/Newmod/*
-        -
-            message: '#.#'
-            path: src/Modules/User/*
-        -
-            message: '#.#'
-            path: src/Modules/Enhanced/*
         # Legacy Tools — scaffolding helpers, not production code
         -
             message: '#.#'

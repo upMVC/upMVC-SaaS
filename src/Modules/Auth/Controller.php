@@ -47,6 +47,7 @@ class Controller
     {
         switch ($reqRoute) {
             case "/auth":
+            case "/login":
                 $this->auth();
                 break;
             case "/logout":

@@ -58,10 +58,9 @@ class Start
      * @var array
      */
     private static $defaultProtectedRoutes = [
-        '/dashboardexample/*',
         '/admin/*',
+        '/platform-admin/*',
         '/users/*',
-        '/moda'
     ];
 
     // ========================================
