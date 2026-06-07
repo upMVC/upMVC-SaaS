@@ -1,516 +1,163 @@
-# 📚 upMVC noFramework v2.0.0 "Islands" – Complete Documentation
+# upMVC-SaaS
 
-> **Modern, lightweight PHP NoFramework with Islands Architecture for real-world PHP + JS systems**
+**Multi-tenant SaaS boilerplate built on the upMVC PHP framework.**
 
-**Status: ✅ Production Ready (v2.0.0 "Islands")** | **PHP 8.1+** | **PSR-4 Compliant** | **MIT License**
+Spin up a production-ready SaaS platform: multi-tenant architecture, JWT authentication, role-based access, plan gating, a platform admin dashboard, and an API-first data layer — all wired up out of the box.
 
-**New in 2.0.0 "Islands":** Hardened auth & middleware, Router v2.0 (typed & validated routes with names), PSR-4 helpers, CRUD + dashboard path, and a fully documented PHP + React/Vue *Islands Architecture*.
+[![PHP](https://img.shields.io/badge/PHP-8.1%2B-blue)](https://php.net)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Packagist](https://img.shields.io/packagist/v/bitshost/upmvc-saas)](https://packagist.org/packages/bitshost/upmvc-saas)
 
-## 🎨 **NEW: Modern UI System**
+---
 
-upMVC v1.0.3 introduces a **contemporary design system** while maintaining complete backward compatibility:
+## What's included
 
-- **🌟 Modern BaseView**: Contemporary CSS Grid/Flexbox layouts with dark mode
-- **📱 Responsive Design**: Mobile-first approach with modern navigation
-- **⚡ Alpine.js Integration**: Lightweight interactivity (~40KB vs 87KB jQuery)
-- **🎯 Zero Breaking Changes**: Drop-in replacement for existing BaseView
+- **Multi-tenant isolation** — every tenant has their own slug, users, plan, and data scope
+- **Dual auth** — session-based login for web shells + stateless JWT for all API calls
+- **Role-based access** — `platform_admin`, `tenant_owner`, `tenant_user` enforced at middleware level
+- **Plan & feature gating** — `PlanGateMiddleware` reads plan limits and feature flags per request
+- **Platform Admin** — manage all tenants, change plans/status, impersonate any tenant
+- **Impersonation + resume** — platform admin can log in as any tenant and return cleanly
+- **API-first architecture** — all data flows through `Api/*` modules; web modules are thin JS-driven shells
+- **JWT rotate** — access token + refresh token rotation with theft detection
+- **Rate limiting** — configurable per-route via middleware
+- **PHPMailer** — account activation emails out of the box
+- **Modern UI** — login page, platform admin, and tenant admin all ship with a clean, responsive design
 
-**Quick Demo:** `/test` (original) vs `/test/modern` (new design)
-**Documentation:** [Modern BaseView Guide](docs/MODERN_BASEVIEW_GUIDE.md) | [Demo Instructions](docs/MODERN_DEMO.md)
+---
 
-## 🌟 **What is upMVC?**
+## Architecture
 
-A lightweight, modern PHP 8.1+ noFramework built on Modular MVC (MMVC) architecture. Designed for developers who want flexibility without noFramework bloat. Features true modularity, "PHP Islands" for frontend integration (React/Vue), dependency injection, middleware pipeline, and clean routing. No forced conventions - use pure PHP or integrate modern JS noFrameworks as needed. Perfect for rapid development while maintaining performance and flexibility.
-
-✨ **Key Features:** Modular architecture • PHP 8.1+ • PSR-4 compliant • Dependency injection • Middleware support • Frontend noFramework integration • Minimal learning curve
-
-### 🚀 **Deploy Any JavaScript Framework**
-
-upMVC excels at integrating **pre-built JavaScript applications** from any framework:
-
-- **⚛️ React** - `npm run build` → deploy to module/public ([Guide](docs/REACT_BUILD_INTEGRATION.md))
-- **💚 Vue** - Production builds with Vite/Webpack ([Guide](docs/VUE_BUILD_INTEGRATION.md))
-- **🔥 Svelte** - SvelteKit or standalone builds  
-- **⚡ Any Framework** - Angular, Solid, Qwik, etc.
-
-**Your PHP module serves the built app** - no complex webpack configs, no dev servers in production. Just build your JS app locally and deploy the static files. Your Controller exposes data via API endpoints that your JS app consumes.
-
-📖 **Complete Guides:** 
-- [React Integration](docs/REACT_BUILD_INTEGRATION.md) - React 18, Vite, Webpack, CRA
-- [Vue Integration](docs/VUE_BUILD_INTEGRATION.md) - Vue 2/3, Vite, Webpack, Nuxt
-- Coming soon: Svelte, Angular guides
-
-> **🤔 Why Mix PHP with JavaScript Frameworks?**  
-> upMVC is a **system architecture**, not just a single app. **Layer 1 (Main upMVC)** handles security, auth, sessions. **Layer 2 (Modules)** are independent apps using any tech—PHP, React, Vue, Svelte. Split large monoliths into micro-frontends. Each team works independently. Deploy modules separately. One breach can't compromise the entire system. **Best of both worlds:** Server-side security + client-side reactivity. Read: [Why Mix?](docs/REACT_BUILD_INTEGRATION.md#-why-mix-php-with-javascript-frameworks)
-
-> **🆚 How is upMVC Different?**  
-> Unlike Laravel, Symfony, or other PHP frameworks, upMVC is a **system, not a framework**. No forced conventions, no ORM requirements, no framework rules. **"Direct PHP First"** principle means complete freedom. Want React in one module and Vue in another? ✅ Want to delete core modules? ✅ Want to split your app into multiple independent instances? ✅ True micro-frontends architecture that nobody else offers. Read: [Comparison with Other PHP Projects](docs/COMPARISON_PHP_FRAMEWORKS.md)
-
-> **📌 Note:** Included modules (admin, email, auth, react, etc.) are **reference implementations** showing different approaches to common problems. After installation, **you can delete any modules** you don't need - keep only what serves your project. Each module demonstrates different techniques (middleware vs manual auth checks, cached routes, etc.) to help you choose your preferred approach. See [Module Philosophy](docs/MODULE_PHILOSOPHY.md) for details.
-
-## 🚀 **Quick Navigation**
-
-### **🎯 New to upMVC? Start Here:**
-- **[📋 First Steps Guide](docs/FIRST-STEPS-GUIDE.md)** - Get running in 5 minutes
-- **[📘 How-To Guide](docs/HOW-TO-GUIDE.md)** - Complete development guide
-- **[❓ FAQ](docs/FAQ.md)** - Common questions and solutions
-- **[📚 Documentation Index](docs/DOCUMENTATION-INDEX.md)** - Complete documentation map
-
-### **🗺️ Routing System (Complete Guide):**
-- **[🌟 THE COMPLETE PICTURE](docs/routing/THE_COMPLETE_PICTURE.md)** - ⭐⭐⭐ **START HERE!** Everything from .htaccess to controller - Why each piece exists, when to use each strategy
-- **[📖 Routing Documentation](docs/routing/README.md)** - Complete routing documentation hub
-- **[📋 Routing Guide](docs/routing/ROUTING_GUIDE.md)** - All 5 routing types with decision tree
-- **[🚀 Router V2 Examples](docs/routing/ROUTER_V2_EXAMPLES.md)** - Type casting, validation, named routes
-
-### **🏗 Architecture & Philosophy:**
-- **[🎨 Pure PHP Philosophy](docs/PHILOSOPHY_PURE_PHP.md)** - The upMVC NoFramework approach
-- **[🧩 Module Philosophy](docs/MODULE_PHILOSOPHY.md)** - Modules as reference implementations
-- **[🔄 Configuration Fallbacks](docs/CONFIGURATION_FALLBACKS.md)** - **NEW!** Three-level fallback system explained
-- **[🏝️ Islands Architecture](docs/ISLANDS_ARCHITECTURE_INDEX.md)** - **NEW!** Complete guide to PHP + React Islands
-- **[⚛️ React Integration Patterns](docs/REACT_INTEGRATION_PATTERNS.md)** - Five ways to integrate React/Vue/Preact
-- **[🔥 ReactHMR - Hot Module Reload](modules/reacthmr/README.md)** - Auto-reload without webpack
-- **[📦 Integration: upMVC + PHP CRUD API Generator](docs/INTEGRATION_PHP_CRUD_API.md)** - **NEW!** Full-stack power combo guide
-- **[🎯 JavaScript Framework Integration](docs/REACT_BUILD_INTEGRATION.md)** - **NEW!** Deploy React, Vue, Svelte, or any JS framework build
-- **[⚛️ React Build Integration](docs/REACT_BUILD_INTEGRATION.md)** - Complete React deployment guide (Vite/Webpack/CRA)
-- **[💚 Vue Build Integration](docs/VUE_BUILD_INTEGRATION.md)** - **NEW!** Vue 2/3 deployment guide (Vite/Webpack/Nuxt)
-- **[🆚 Comparison with Other PHP Frameworks](docs/COMPARISON_PHP_FRAMEWORKS.md)** - **NEW!** Why upMVC is unique
-- **[💪 Architectural Strengths](docs/ARCHITECTURAL_STRENGTHS.md)** - What makes upMVC powerful
-- **[🛣 Routing Capabilities](docs/ROUTING_CAPABILITIES.md)** - Understanding the routing system
-- **[�️ Routing & .htaccess System](docs/ROUTING_HTACCESS.md)** - **NEW!** Complete guide with module examples (test, moda, userorm, admin)
-- **[�🔧 URL Handling Explained](docs/URL_HANDLING_EXPLAINED.md)** - Request flow and middleware
-
-### **� Bug Fixes & Improvements:**
-- **[🔐 Authentication Redirect Fix](docs/BUG_FIX_AUTH_REDIRECT.md)** - Session intended_url handling
-- **[⚙️ Assignment Operator Fix](docs/BUG_FIX_AUTH_ASSIGNMENT.md)** - Comparison vs assignment
-- **[🚪 Missing Exit Statements](docs/BUG_FIX_MISSING_EXIT.md)** - Proper redirect handling
-- **[📤 Output Before Header Fix](docs/BUG_FIX_OUTPUT_BEFORE_HEADER.md)** - Header redirect timing
-- **[🔗 Trailing Slash Fix](docs/BUG_FIX_TRAILING_SLASH.md)** - URL normalization
-- **[🧹 Debug Code Cleanup](docs/CLEANUP_DEBUG_CODE.md)** - Production-ready code
-
-### **✅ Verification & Release:**
-- **[🔍 Pre-Release Verification](docs/PRE_RELEASE_VERIFICATION.md)** - Complete verification report
-- **[🚀 Ready for Main](docs/READY_FOR_MAIN.md)** - Production readiness checklist
-- **[📋 Verification Checklist](docs/VERIFICATION_CHECKLIST.md)** - Step-by-step validation
-- **[✨ Enhancements](docs/ENHANCEMENTS.md)** - Latest improvements
-
-### **🛠 Development:**
-- **[🐛 /zbug Folder](zbug/README.md)** - Debug files and development utilities (excluded from Git)
-
-### **🚀 Router v2.0 - Enhanced Routing:**
-- **[🌟 THE COMPLETE PICTURE](docs/routing/THE_COMPLETE_PICTURE.md)** - ⭐⭐⭐ **Everything explained** - .htaccess, Router, all 5 strategies, when to use each
-- **[Complete Routing Guide](docs/routing/ROUTING_GUIDE.md)** - Unified guide covering all 5 routing types, decision tree, when to use each
-- **[Router v2.0 Examples](docs/routing/ROUTER_V2_EXAMPLES.md)** - Complete Router V2 usage guide (type casting, validation, named routes, grouping)
-- **[Router v2.0 Changelog](docs/routing/ROUTER_V2_CHANGELOG.md)** - What's new in v2.0
-- **[Implementation Report](docs/routing/ROUTER_V2_IMPLEMENTATION_COMPLETE.md)** - Technical implementation details
-- **[Parameterized Routing Guide](docs/routing/PARAMETERIZED_ROUTING.md)** - Full parameterized routing documentation
-- **[Evaluation Report](docs/routing/PARAMETERIZED_ROUTING_EVALUATION.md)** - Grade: A+ (90/100)
-- **[Future Recommendations](docs/routing/PARAMETERIZED_ROUTING_RECOMMENDATIONS.md)** - v2.1+ roadmap
-- **[Helpers Class Usage](docs/routing/HELPERS_CLASS_USAGE.md)** - OOP helper methods guide
-- **[Helper Functions Guide](docs/routing/HELPER_FUNCTIONS_GUIDE.md)** - ⭐ **NEW!** PSR-4 modular helper system
-
-### **🏗️ PSR-4 Helper Architecture (v1.4.7):**
-upMVC now features a modern PSR-4 compliant modular helper system:
-- **Modular Structure:** Each helper in its own class (RouteHelper, UrlHelper, FormHelper, etc.)
-- **Facade Pattern:** Unified access via `HelperFacade`
-- **Auto-loaded:** No manual `require_once` needed
-- **Type-Safe:** Router V2 integration for named routes
-- **Scalable:** Easy to add new helpers
-- **[View Helper Classes](etc/Helpers/)** - PSR-4 helper architecture
-
-### **🎯 Routing Features:**
-
-upMVC provides **5 routing strategies** for different scenarios:
-
-1. **Simple Static Routes** - Fixed URLs (`/about`, `/contact`)
-2. **Parameterized Routes** - URL placeholders (`/users/{id}`)
-3. **Router V2 Enhanced** - Type casting + validation + named routes ⭐ **NEW!**
-4. **Database-Driven Routes** - Dynamic routes from DB
-5. **Cached Database Routes** - DB routes with file caching
-
-**Router V2 Enhanced Features (v1.4.7):**
-- ✅ **Type Casting:** `{id:int}`, `{price:float}`, `{active:bool}` - automatic type conversion
-- ✅ **Validation:** Regex constraints at router level (`['id' => '\d+']`)
-- ✅ **Named Routes:** Generate URLs from route names (`route('user.edit', ['id' => 5])`)
-- ✅ **Route Grouping:** Auto-prefix optimization for organized routes
-
-**Quick Example:**
-```php
-// Router V2 - Type-safe with validation
-$router->addParamRoute('/users/{id:int}', User\Controller::class, 'show', [], [
-    'id' => '\d+'
-])->name('user.show');
-
-// Controller - no manual casting needed!
-public function show() {
-    $id = $_GET['id']; // Already an integer!
-    $user = $this->model->getUserById($id);
-    // ...
-}
-
-// Generate URLs with named routes
-$url = HelperFacade::route('user.show', ['id' => 123]); // /users/123
+```
+src/Modules/
+├── Api/                    the data backbone — all business logic lives here
+│   ├── Modules/Auth/       POST /api/auth/login, /refresh, /logout
+│   ├── Modules/Plans/      GET  /api/plans
+│   ├── Modules/Tenants/    tenant registration, show, users, public slug
+│   └── Modules/Admin/      platform admin API — tenant CRUD, impersonate
+│
+├── Auth/                   session-based web login (renders the login/signup pages)
+├── PlatformAdmin/          web shell → calls Api/Admin via JS fetch
+├── TenantApp/              tenant dashboard shell → calls Api/Tenants via JS fetch
+├── TenantShop/             public storefront shell → calls Api/public/tenants via JS fetch
+├── Home/                   public landing page
+└── Mail/                   PHPMailer wrapper
 ```
 
-**See:** [Complete Routing Guide](docs/routing/ROUTING_GUIDE.md) for decision tree and when to use each type
+**The rule:** web modules never query the database directly. They render an HTML shell, inject a JWT from the PHP session into JS, and let the browser fetch everything from the API. One data layer, no duplication.
 
-Demo: https://upmvc.com/demo/
-	
+---
 
-Rasmus Lerdorf: PHP NoFrameworks all suck!	
-
-
-<a href = "https://www.youtube.com/watch?v=DuB6UjEsY_Y&ab_channel=matperino" target="_blank">Rasmus Lerdorf: PHP NoFrameworks all suck!</a>
-
-
-# Use cases:
-#### You can use the system as a standalone, as a library, as a library in the standalone version where it can be a module, you can also use it as a standalone in the standalone version /shop /blog /app /anything else - in this way, you split your app into multiple apps(shop, blog, app, anything else as separate instances of upMVC) each with their modules connected to the same or different endpoints.
-
-# 📦 Installation
-
-> **Entry Point (Standalone Projects, v2.0)**  
-> When you create a new project with `composer create-project bitshost/upmvc`,
-> the canonical HTTP entry point is `public/index.php`. The root `index.php`
-> is kept for library-style installs (when you copy the file into an existing
-> project root). For a clean standalone deployment, point your web server
-> document root to the `public/` directory.
-
-## Option 1: Install as a Library (Recommended for existing projects)
-
-Add upMVC to your existing project in **4 simple steps:**
+## Installation
 
 ```bash
-# Step 1: Install via Composer
-composer require bitshost/upmvc
-# Alternative versions:
-# composer require bitshost/upmvc:^1.0  (recommended - all 1.x updates)
-# composer require bitshost/upmvc:dev-main  (bleeding edge - risky!)
-
-# Step 2: Copy essential files to project root
-copy vendor/bitshost/upmvc/index.php .
-copy vendor/bitshost/upmvc/.htaccess .
-
-# Step 3: Configure your environment (.env)
-# Edit vendor/bitshost/upmvc/src/Etc/.env with required settings:
-# - SITE_PATH=/your-folder-name (e.g., /myproject)
-# - DOMAIN_NAME=localhost (or your domain)
-# 
-# Database configuration is optional (uses etc/ConfigDatabase.php fallback)
-# - Configure only when your modules need database access
-# - Framework works without database for static/API projects
+composer create-project bitshost/upmvc-saas my-saas
+cd my-saas
 ```
 
-**That's it!** 🎉 Run with:
-```bash
-php -S localhost:8080
+The setup script runs automatically and:
+- copies `.env.example` to `.env` with auto-generated `JWT_SECRET` and `APP_KEY`
+- creates `storage/` and `src/logs/` directories
+
+---
+
+## Quick start
+
+**1. Configure the environment**
+
+Edit `src/Etc/.env`:
+
+```ini
+DOMAIN_NAME=http://localhost
+SITE_PATH=/my-saas/public      # or empty if domain root
+
+DB_HOST=localhost
+DB_NAME=my_saas_db
+DB_USER=root
+DB_PASS=secret
 ```
 
-**Visit:** `http://localhost:8080` - All 16 modules will be automatically loaded and registered!
-
-## Option 2: Install as a Standalone Project (Even Simpler!)
-
-Create a complete upMVC project in **3 simple steps:**
+**2. Import the schema and demo data**
 
 ```bash
-# Step 1: Create project
-composer create-project bitshost/upmvc yourProjectName
-# Or in current directory:
-# composer create-project bitshost/upmvc .
-
-# Step 2: Navigate to project
-cd yourProjectName
-
-# (Recommended v2.0) If you use public/ as web server document root:
-# cd public
-
-# Step 3: Configure etc/.env
-# Edit these 2 required settings:
-# - SITE_PATH=/yourProjectName          # if document root is project root
-#   or SITE_PATH=/yourProjectName/public # if document root points to public/
-#   or SITE_PATH=                       # if the app is at domain root
-# - DOMAIN_NAME=http://localhost
-# 
-# Database settings are optional because upMVC has smart fallbacks:
-# - If .env database settings are missing, it uses etc/ConfigDatabase.php
-# - Framework will work even without database (for static/API projects)
-# - Configure database only when you need it for your modules
+mysql -u root -p my_saas_db < database/demo.sql
 ```
 
-**That's it!** 🎉 Run with (choose one):
-```bash
-# A) Serve from project root (uses index.php in root)
-php -S localhost:8081
-
-# B) Recommended v2.0: serve public/ as document root
-php -S localhost:8081 -t public
-```
-
-**Visit:**
-- If using root as document root: `http://localhost:8081/yourProjectName`
-- If using public/ as document root: `http://localhost:8081` (or adjust for SITE_PATH)
-
-**Note:** Everything is included - no copying files needed! Just configure `.env` and run.
-
-**Optional - Keep dependencies updated:**
-```bash
-# Update autoloader when adding new modules
-composer dump-autoload
-
-# Update dependencies
-composer update
-```
-
-## � Lightweight Parameterized Routing (Optional)
-
-You can now declare routes with simple placeholders instead of only exact paths or .htaccess rewrites.
-
-Examples:
-
-```php
-// Exact route (unchanged)
-$router->addRoute('/users', User\Controller::class, 'index');
-
-// New: parameterized routes
-$router->addParamRoute('/users/{id}', User\Controller::class, 'show');
-$router->addParamRoute('/orders/{orderId}/items/{itemId}', OrderItem\Controller::class, 'detail');
-```
-
-How it works:
-- Exact routes are checked first (fast hash lookup).
-- If no exact match, parameterized routes are evaluated (segment by segment).
-- Extracted parameters are injected into `$_GET` (e.g., `$_GET['id'] = '123'`) and also available to middleware via `$request['params']`.
-- Controllers keep their simple signature: `action($route, $method)` and read params from `$_GET`.
-
-Benefits:
-- Cleaner route declarations for resource-like URLs.
-- Fewer .htaccess patterns; less boilerplate loops.
-- Backward compatible; you can mix exact and param routes.
-
-Notes:
-- Placeholder syntax: `{name}` (letters/digits/underscore, must start with a letter/underscore).
-- Exact routes always win over parameterized routes (e.g., `/users/profile`).
-- Type validation remains in your controller (e.g., `ctype_digit($_GET['id'])`).
-
-## �🧹 Maintenance: Cache CLI
-
-Use the cache maintenance utility to inspect and clear caches (module discovery, admin dynamic route cache, and configured cache stores).
+**3. Run**
 
 ```bash
-# List available commands
-php tools/cache-cli.php list
-
-# Show cache statistics
-php tools/cache-cli.php stats
-
-# Clear only module discovery caches
-php tools/cache-cli.php clear:modules
-
-# Clear Admin module dynamic route cache
-php tools/cache-cli.php clear:admin
-
-# Clear everything (modules + admin + cache stores)
-php tools/cache-cli.php clear:all
+php -S localhost:8000 -t public
 ```
 
-Windows PowerShell example:
-
-```powershell
-php .\tools\cache-cli.php clear:all
-```
-
-Affected components:
-- Module discovery cache used by `etc/InitModsImproved.php` in production mode.
-- Admin dynamic route cache file: `etc/storage/cache/admin_routes.php`.
-- All instantiated cache stores via `upMVC\Cache\CacheManager::clearAll()`.
-
-Exit codes: `0` success, `1` failure, `2` unknown command.
-
-
-## ⚙️ Configuration
-
-upMVC uses a smart **layered configuration system** with automatic fallbacks:
-
-### Primary Configuration: `.env` file
-Edit `/etc/.env` for environment-specific settings:
-- **Required:** `SITE_PATH`, `DOMAIN_NAME`, `APP_ENV`
-- **Optional:** Database, mail, cache, session settings
-
-### 🔄 Five-Level Fallback System
-
-upMVC has intelligent fallbacks that let the system work immediately without complete configuration:
-
-1. **Path & Domain** → `.env` or `Config.php` fallbacks
-2. **Protected Routes** → `.env` or `start.php` defaults  
-3. **Database** → `.env` or `ConfigDatabase.php` fallbacks
-4. **Session Configuration** → Config array or hardcoded defaults (lifetime, secure, httponly)
-5. **Security/Middleware** → `.env` ConfigManager or defaults (CORS, CSRF, rate limiting)
-
-**Why?** Start coding immediately, configure gradually as you need features!
-
-📖 **[Complete Fallback Documentation](docs/CONFIGURATION_FALLBACKS.md)** - Detailed guide with examples and troubleshooting
-
-### 🔍 Quick Troubleshooting
-
-If something doesn't work as expected, check:
-1. `.env` file (highest priority)
-2. `Config.php` fallbacks (path/domain + session)
-3. `start.php` defaults (protected routes + security)
-4. `ConfigDatabase.php` (database credentials)
-5. `ConfigManager.php` (all .env-based defaults)
-
-💡 **Pro Tip:** Start with just `SITE_PATH` and `DOMAIN_NAME`, add database later when needed!
-
-#
-		
-## 🛣️ Routing System
-
-upMVC v2 uses a **Router v2.0 + auto-discovery** model – you configure the core router once and let modules register themselves.
-
-### Core Routing Flow
-
-1. **Global Routes** → `src/Etc/Routes.php`
-   - Application-wide routes (health, home, system-level endpoints).
-2. **Router v2.0** → `src/Etc/Router.php`
-   - Exact routes + parameterized routes (typed, validated, named).
-3. **Module Auto‑Discovery** → `src/Etc/InitModsImproved.php`
-   - Scans `src/Modules/*` and automatically wires module routes.
-
-### Autoloading (Composer)
-
-Composer now handles everything via a **single PSR‑4 root**:
-
-```json
-"autoload": {
-    "psr-4": {
-        "App\\": "src/"
-    }
-}
-```
-
-- No per‑module namespace entries needed **in composer.json** – all modules live under the single `App\` tree.
-- Inside your module code you still declare normal namespaces like `App\Modules\Blog`, `App\Modules\Shop`, etc. – Composer autoload will resolve them automatically.
-- After adding new modules, run: `composer dump-autoload`
-
-### Quick Start: Add a Module with Routes
-
-1. Create your module under `src/Modules/Yourmodule/` (Controller, View, etc.).
-2. Expose routes from the module via its `Routes`/`routes` method (see docs and examples).
-3. Ensure `InitModsImproved` is in use – it will auto‑discover and register the module.
-4. Visit the module URL; Router v2.0 + middleware handle the rest.
-
-**Examples & Guides:**
-- See the `test`, `admin`, and example modules under `src/Modules/*`.
-- Read: `docs/routing/ROUTING_GUIDE.md`, `docs/routing/ROUTER_V2_EXAMPLES.md`, and `docs/routing/ROUTER_V2_CHANGELOG.md`.
-    
-
-#
-Note: 
-#
-A friendly URL is a short and simple web address that redirects to a longer web address. Friendly URLs are called Aliases in Sitecore.
-#
-We achieve this by combining some .htacces rules with module routes.
-Check modules/test/routes/Routes.php and the .htaccess file - you will notice the rules established in the.htaccess file for these specific routes - you may build as many as you like.
-
-#
-
-<img width="482" alt="Screenshot 2024-02-14 141414" src="https://github.com/upMVC/upMVC/assets/23263143/7494c92d-5fb8-4246-9e1a-12cd08edf21c">
-
-#
-
-<img width="550" alt="Screenshot 2024-02-14 141435" src="https://github.com/upMVC/upMVC/assets/23263143/f0c30024-f382-405d-8c75-880b9fd385d7">
-
-#
-In the same file, modules/test/routes/Routes.php, you will see for demonstration purposes how you may handle a large number of URLs with parameters (such as an idProduct) in a very straightforward way.
-
-#
-
-<img width="550" alt="Screenshot 2024-02-14 142531" src="https://github.com/upMVC/upMVC/assets/23263143/d5e155b2-92f8-4034-9fc8-1267efdbbf23">
-
-#
-
-
-#
-#
-
-# Steps
-#
- - Edit /etc/Config.php, /etc/ConfigDatabase.php, /modules/mail/MailController.php with your data.
- - Make your module in the MVC style (model, view, controller).
- - You may or may not wish to utilize BASE MODEL, BASE VIEW and BASE CONTROLLER from the common/bmvc subdirectory.
- - BaseModel contains all of the data required for CRUD OPERATIONS; simply expand it in your module model and you have a CRUD ready-made module; see example module modules/user.
- - Make a distinctive namespace for each module
- - Your module routes should be kept under modules/YourModule/routes - file Routes.php
- - Because these routes should be presented to Router, you must provide their namespace to InitMods.php and initialize your module routes. 
- - Don't forget to update composer.json with your new namespaces for your module and routes, as well as refresh composer from the terminal:
- - composer  dump-autoload
- - php composer.phar dump-autolad
- - setup your PHPMailer - mail/MailController.php
-
-### You have more than one method of accomplishing things in example modules, upMVC - don't enforce RULES like others do, but respect architecture models MVC, MMVC, and pure PHP and OOP programming rules.
-
-#
-#
-
-# The Names Convention
-#
-## Considering recommendations:
- - Model, View, Controller - will be called without using module name in their name. For example, module name = books:
- - Model.php - class Model; View.php - class View; Controller.php - class Controller;
- - and make a distinctive namespace for each module - namespace Modulename - e.g. Books;
- - Your module routes should be kept under modules/yourmodule/routes - file Routes.php: 
-   - Routes.php class Routes in folder /modules/books/routes
-   - namespace Modulename\Routes, e.g. Books\Routes
-#
-#
-##
-## The provided modules (Mail and Authentication) are for illustrative purposes only. You can safely delete them, as well as any other existing modules. The goal is to demonstrate the modularity of the system and how you can create your own custom modules to suit your specific project needs.
-
-##
-
-#
-Diagram:
-![upMVC-Diagram](https://github.com/BitsHost/upMVC/assets/23263143/b3d2ff6c-bff5-41c8-9dad-a08d1b7ad6c5)
-
- File Structure:
-
-
-
-
-![upMVC-FileStructure ](https://github.com/BitsHost/upMVC/assets/23263143/b1f92106-476a-45ee-9462-9b562edfe777)
-
-
-#
-#
-#
-### "Many noFrameworks may look very appealing at first glance because they seem to reduce web application development to a couple of trivial steps leading to some code generation and often automatic schema detection, but these same shortcuts are likely to be your bottlenecks as well since they achieve this simplicity by sacrifizing flexibility and performance."
-
-<a href="https://toys.lerdorf.com/the-no-framework-php-mvc-framework" target="_blank">All NoFramweworks: "achieve this simplicity by sacrifizing flexibility and performance" Rasmus Lerdorf</a>
-
-
-
-upMVC - MMVC, PHP MVC with modules. Modular MVC(Model, View, Controller) derive from Hierarchical Model‐View‐Controller (HMVC).	
-											
-
-Introducing MODULAR MVC - Empowering Your Development
-
-In the realm of modern noFrameworks, it often feels like they do everything except what truly matters. These noFrameworks tend to add layers of abstraction that demand you to learn new skills and pathways whenever you decide to switch. They also tend to clutter themselves with superfluous options, solving simple problems in needlessly convoluted ways. 
-
-Consider PHP, including its blade templating engine. Why introduce yet another template engine when PHP is already equipped for the task? Delving into a new noFramework often necessitates a substantial relearning effort, pushing you far beyond your existing PHP knowledge.
-
-So, why should you choose MMVC?
-
-MMVC, standing for Modular Model View Controller, is not about reinventing the wheel. Instead, it's about optimizing the use of exceptional components. It offers a structured, straightforward approach, and its versatility proves invaluable for project management and development.
-
-But why MMVC specifically?
-
-1. **Modularity:** MMVC allows you to work on a module without impacting the rest of your project. Modules can be interchanged and integrated seamlessly, enhancing your development agility.
-
-2. **Language Freedom:** Perhaps most importantly, you have the freedom to write your modules in your preferred language, whether it's PHP, JS, PYTHON, or modern technologies like TS, React, Vue, Preact. There are no constraints on your creativity.
-
-3. **Development-Centric:** MMVC was designed with development in mind. You can steer your project in any direction you desire, utilizing your own autoloader or composer autoload. Composer/packagist usage is optional, not obligatory.
-4. **"Islands"** of Interactivity: Within this PHP-generated HTML, you strategically place interactive components built with noFrameworks like React, Vue, Preact or Svelte. These components handle dynamic elements, such as user interactions, real-time updates, and animations. Read here: <a href="https://upmvc.com/Blog/The-Rise-of-%22PHP-Islands%22:-A-Hybrid-Approach-to-Web-Development/#wbb1" target="_blank">The Rise of "PHP Islands": A Hybrid Approach to Web Development</a>
-
-What truly sets MMVC apart is its ability to harness the latest PHP capabilities without constraint. No more endless loops, as this noFramework liberates your development possibilities.
-
-##
-BitsHost Team
-
+**4. Open your browser**
+
+| URL | What you get |
+|-----|-------------|
+| `/auth` | Login page |
+| `/platform-admin` | Platform admin dashboard (role: `platform_admin`) |
+| `/app` | Tenant admin — redirects to your tenant slug |
+| `/app/{slug}` | Public tenant frontend |
+| `/shop/{slug}` | Tenant storefront |
+
+Default platform admin credentials are in `database/demo.sql`.
+
+---
+
+## API endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| POST | `/api/auth/login` | — | Login, returns access + refresh tokens |
+| POST | `/api/auth/refresh` | Bearer | Rotate refresh token |
+| POST | `/api/auth/logout` | Bearer | Revoke refresh token |
+| GET | `/api/plans` | — | List all plans |
+| POST | `/api/tenants/register` | — | Register a new tenant |
+| GET | `/api/tenants/{id}` | JWT | Tenant + plan details |
+| GET | `/api/tenants/{id}/users` | JWT | Tenant user list |
+| PATCH | `/api/tenants/{id}/update` | JWT | Update tenant |
+| GET | `/api/public/tenants/{slug}` | — | Public tenant info |
+| GET | `/api/admin/tenants` | JWT (admin) | List all tenants |
+| PATCH | `/api/admin/tenants/{id}` | JWT (admin) | Update tenant name/status/plan |
+| POST | `/api/admin/impersonate` | JWT (admin) | Get impersonation token |
+
+---
+
+## Tech stack
+
+| Layer | Technology |
+|-------|-----------|
+| Language | PHP 8.1+ |
+| Framework | upMVC (Modular MVC, PSR-4) |
+| Auth | Sessions + HS256 JWT |
+| Database | MySQL / MariaDB via PDO |
+| Email | PHPMailer |
+| Frontend | Vanilla JS fetch (no build step) |
+| Autoloading | Composer PSR-4 |
+
+---
+
+## Documentation
+
+Full documentation is in [`/docs`](docs/README.md):
+
+| Doc | Contents |
+|-----|---------|
+| [01 — What is upMVC-SaaS](docs/01-what-is-saas.md) | Concept, goals, what problem it solves |
+| [02 — Architecture](docs/02-architecture.md) | Api/* structure, middleware pipeline, dual auth |
+| [03 — Getting Started](docs/03-getting-started.md) | Configure, migrate, create first tenant |
+| [04 — API Modules](docs/04-api-modules.md) | How Api/* modules work, adding your own |
+| [05 — Auth & JWT](docs/05-auth-jwt.md) | JWT login, refresh rotation, logout, theft detection |
+| [06 — Tenants & Plans](docs/06-tenants-plans.md) | Multi-tenancy, plan gating, feature flags |
+| [07 — Platform Admin](docs/07-platform-admin.md) | Admin shell, Api/Admin endpoints, impersonation |
+| [08 — Your Way](docs/08-your-way.md) | This is a starting point, not a rulebook |
+
+For the base framework (routing, module system, middleware, configuration):
+**upMVC docs** → https://github.com/upMVC/upMVC
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).
+
+Built by [BitsHost](https://upmvc.com).
