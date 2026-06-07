@@ -31,7 +31,7 @@
 namespace App\Modules\Auth;
 
 use App\Etc\JwtService;
-use App\Modules\mail\MailController;
+use App\Modules\Mail\MailController;
 use PDO;
 
 class Controller

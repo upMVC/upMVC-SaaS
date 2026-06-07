@@ -5,7 +5,6 @@ parameters:
         - src/Etc
         - src/Common
         - src/Modules
-        - src/Tools
     excludePaths:
         - vendor
         - logs
@@ -27,10 +26,6 @@ parameters:
         -
             message: '#Call to an undefined static method App\\Etc\\Cache\\CacheManager::(get|put|forget|has|flush)#'
             path: src/*
-        # PHPMailer vendor — missing optional OAuth2/PSR-Log deps, not our code
-        -
-            message: '#.#'
-            path: src/Modules/Mail/PHPMailer/*
         # bv-nav partial — variables injected via extract() at include-time
         -
             message: '#Variable \$(base|role|logged|roleBadge|uname) might not be defined#'
@@ -38,16 +33,9 @@ parameters:
         -
             message: '#Call to protected method (isActive|dropActive)\(\) of class#'
             path: src/Common/Assets/bv-nav.php
-        # Legacy Tools — scaffolding helpers, not production code
-        -
-            message: '#.#'
-            path: src/Tools/*
         # TenantApp uses SITEPATH legacy constant
         -
             message: '#Constant SITEPATH not found#'
-            path: src/Modules/TenantApp/*
-        -
-            message: '#Unreachable statement#'
             path: src/Modules/TenantApp/*
     bootstrapFiles:
         - vendor/autoload.php
