@@ -20,7 +20,7 @@ class View
                 <h1 style="margin:0;font-size:1.5rem;">Platform Admin
                     <small id="tenant-count" style="font-size:.75rem;color:#666;margin-left:8px;"></small>
                 </h1>
-                <a href="<?php echo $base; ?>/auth/logout"
+                <a href="<?php echo $base; ?>/logout"
                    style="padding:6px 14px;border:1px solid #cbd5e1;border-radius:4px;text-decoration:none;color:#374151;font-size:.85rem;">
                     Logout
                 </a>
