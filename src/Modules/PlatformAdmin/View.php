@@ -385,6 +385,7 @@ class View
 <!-- Hidden form: POST impersonation token to PHP session-swap endpoint -->
 <form id="assume-form" action="<?php echo $base; ?>/platform-admin/assume" method="POST" style="display:none;">
     <input type="hidden" name="token" id="assume-token">
+    <input type="hidden" name="csrf_token" value="<?php echo \App\Etc\Security::csrfToken(); ?>">
 </form>
 
 <div id="toast" class="pa-toast"></div>

@@ -31,6 +31,7 @@
 namespace App\Modules\Auth;
 
 use App\Etc\JwtService;
+use App\Etc\Security;
 use App\Modules\Api\Modules\Auth\Model as ApiAuthModel;
 use App\Modules\Api\Modules\Tenants\Model as TenantModel;
 use PDO;
@@ -98,6 +99,12 @@ class Controller
 
         // Process POST before any HTML output so session cookie can be set
         if ($_POST) {
+            // Brute-force guard: 10 attempts per IP per 15 minutes
+            if (!Security::rateLimit('login:' . ($_SERVER['REMOTE_ADDR'] ?? ''), 10, 900)) {
+                (new View())->renderLogin('Too many login attempts. Please wait 15 minutes before trying again.');
+                return;
+            }
+
             $users           = new Model();
             $users->username = $_POST['username'] ?? '';
             $inputPassword   = $_POST['password'] ?? '';

@@ -155,6 +155,7 @@ class View
                            autocomplete="current-password" placeholder="••••••••">
                     <span class="field-err" id="password_info"></span>
                 </div>
+                <input type="hidden" name="csrf_token" value="<?php echo \App\Etc\Security::csrfToken(); ?>">
                 <button type="submit" name="login" class="btn-primary">Sign in</button>
             </form>
             <p class="auth-switch">Don't have an account? <a href="<?php echo $base; ?>/signup">Create one</a></p>
@@ -380,6 +381,7 @@ function validate() {
                     <input type="password" id="password" name="password" autocomplete="new-password" placeholder="••••••••">
                     <span class="field-err" id="password_info"></span>
                 </div>
+                <input type="hidden" name="csrf_token" value="<?php echo \App\Etc\Security::csrfToken(); ?>">
                 <button type="submit" name="signup" class="btn-primary">Create account</button>
             </form>
             <p class="auth-switch">Already have an account? <a href="<?php echo $base; ?>/auth">Sign in</a></p>
