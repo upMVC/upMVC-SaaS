@@ -33,6 +33,11 @@
             "php scripts/setup.php"
         ]
     },
-    "keywords": ["saas", "multi-tenant", "php", "mvc", "jwt", "starter", "boilerplate"],
+    "keywords": [
+        "saas", "multi-tenant", "boilerplate", "starter-kit",
+        "php", "php8", "mvc", "api-first",
+        "jwt", "authentication", "role-based-access-control",
+        "platform-admin", "tenant-management", "feature-flags"
+    ],
     "homepage": "https://upmvc.com"
 }
