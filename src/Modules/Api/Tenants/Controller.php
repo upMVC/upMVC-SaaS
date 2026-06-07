@@ -1,20 +1,16 @@
 <?php
-namespace App\Modules\SaaS\Modules\Tenants;
+
+namespace App\Modules\Api\Tenants;
 
 use App\Common\Bmvc\BaseApiController;
 
 class Controller extends BaseApiController
 {
-    /**
-     * POST /api/tenants/register — public
-     * Creates tenant + owner user in one transaction.
-     */
     public function register(): never
     {
         $body  = $this->requireFields(['slug', 'name', 'username', 'email', 'password']);
         $model = new Model();
 
-        // Normalise slug
         $slug = strtolower(preg_replace('/[^a-z0-9\-]/i', '-', trim($body['slug'])));
 
         if ($model->findBySlug($slug)) {
@@ -41,9 +37,6 @@ class Controller extends BaseApiController
         );
     }
 
-    /**
-     * GET /api/tenants/{id} — requires jwt
-     */
     public function show(): never
     {
         $id = (int) ($_GET['id'] ?? 0);
@@ -58,9 +51,6 @@ class Controller extends BaseApiController
         $this->success($tenant);
     }
 
-    /**
-     * PATCH /api/tenants/{id} — requires jwt, tenant owner or platform_admin
-     */
     public function update(): never
     {
         $id = (int) ($_GET['id'] ?? 0);
@@ -69,10 +59,6 @@ class Controller extends BaseApiController
         $ok = (new Model())->update($id, $this->body());
         $ok ? $this->success(null, 'Tenant updated') : $this->error('Nothing to update or update failed');
     }
-
-    // -----------------------------------------------------------------------
-    // Guard
-    // -----------------------------------------------------------------------
 
     private function assertTenantAccess(int $id): void
     {

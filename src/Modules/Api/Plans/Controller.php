@@ -1,11 +1,11 @@
 <?php
-namespace App\Modules\SaaS\Modules\Plans;
+
+namespace App\Modules\Api\Plans;
 
 use App\Common\Bmvc\BaseApiController;
 
 class Controller extends BaseApiController
 {
-    /** GET /api/plans — public, list all plans */
     public function index(): never
     {
         $plans = (new Model())->listAll();
@@ -16,7 +16,6 @@ class Controller extends BaseApiController
         $this->success($plans);
     }
 
-    /** GET /api/plans/{id} */
     public function show(): never
     {
         $id   = (int) ($_GET['id'] ?? 0);

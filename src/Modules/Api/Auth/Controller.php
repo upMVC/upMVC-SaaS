@@ -1,23 +1,12 @@
 <?php
-namespace App\Modules\SaaS\Modules\ApiAuth;
+
+namespace App\Modules\Api\Auth;
 
 use App\Common\Bmvc\BaseApiController;
 use App\Etc\JwtService;
 
-/**
- * ApiAuth Controller — stateless JWT authentication endpoints
- *
- * Routes (no tenant middleware — these are pre-tenant):
- *   POST /api/auth/login    → returns access_token + refresh_token
- *   POST /api/auth/refresh  → rotates tokens (old refresh revoked, new pair issued)
- *   POST /api/auth/logout   → revokes refresh token(s)  [requires jwt middleware]
- */
 class Controller extends BaseApiController
 {
-    // -----------------------------------------------------------------------
-    // POST /api/auth/login
-    // -----------------------------------------------------------------------
-
     public function login(): never
     {
         $body  = $this->requireFields(['username', 'password']);
@@ -50,10 +39,6 @@ class Controller extends BaseApiController
         ]);
     }
 
-    // -----------------------------------------------------------------------
-    // POST /api/auth/refresh
-    // -----------------------------------------------------------------------
-
     public function refresh(): never
     {
         $body      = $this->requireFields(['refresh_token']);
@@ -66,7 +51,6 @@ class Controller extends BaseApiController
             $this->error('Invalid refresh token', 401);
         }
         if ($record['revoked_at'] !== null) {
-            // Possible token theft — revoke all tokens for this user
             $model->revokeAllUserTokens((int) $record['user_id']);
             $this->error('Refresh token has already been used (possible theft detected)', 401);
         }
@@ -74,7 +58,6 @@ class Controller extends BaseApiController
             $this->error('Refresh token has expired — please log in again', 401);
         }
 
-        // Rotate: invalidate old token, issue new pair
         $model->revokeRefreshToken($tokenHash);
 
         $user = $model->findUserById((int) $record['user_id']);
@@ -92,20 +75,14 @@ class Controller extends BaseApiController
         ]);
     }
 
-    // -----------------------------------------------------------------------
-    // POST /api/auth/logout  [requires jwt middleware]
-    // -----------------------------------------------------------------------
-
     public function logout(): never
     {
         $body  = $this->body();
         $model = new Model();
 
         if (!empty($body['refresh_token'])) {
-            // Revoke the single supplied refresh token
             $model->revokeRefreshToken(hash('sha256', $body['refresh_token']));
         } else {
-            // No specific token supplied — revoke all sessions for this user
             $userId = (int) ($this->user['sub'] ?? 0);
             if ($userId > 0) {
                 $model->revokeAllUserTokens($userId);
@@ -115,17 +92,6 @@ class Controller extends BaseApiController
         $this->success(null, 'Logged out successfully');
     }
 
-    // -----------------------------------------------------------------------
-    // Helpers
-    // -----------------------------------------------------------------------
-
-    /**
-     * Issue an access token + refresh token pair and persist the refresh token.
-     *
-     * @param Model $model
-     * @param array $user  Row from the users table
-     * @return array{string, string}  [accessToken, rawRefreshToken]
-     */
     private function buildTokenPair(Model $model, array $user): array
     {
         $jwt = new JwtService();

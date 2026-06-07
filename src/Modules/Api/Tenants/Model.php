@@ -1,14 +1,11 @@
 <?php
-namespace App\Modules\SaaS\Modules\Tenants;
+
+namespace App\Modules\Api\Tenants;
 
 use App\Common\Bmvc\BaseModel;
 
 class Model extends BaseModel
 {
-    /**
-     * Create a new tenant row.
-     * Returns the new tenant ID.
-     */
     public function create(array $data, string $table = ''): int
     {
         $stmt = $this->conn->prepare(
@@ -24,11 +21,6 @@ class Model extends BaseModel
         return (int) $this->conn->lastInsertId();
     }
 
-    /**
-     * Create the first admin user for a newly registered tenant.
-     * Password is hashed here — caller passes plaintext.
-     * Returns the new user ID.
-     */
     public function createOwnerUser(int $tenantId, array $u): int
     {
         $stmt = $this->conn->prepare(
@@ -64,10 +56,6 @@ class Model extends BaseModel
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
-    /**
-     * Partial update — only touches columns present in $data.
-     * Allowed: name, plan_id, status, features
-     */
     public function update(int $id, array $data, string $table = ''): bool
     {
         $allowed = ['name', 'plan_id', 'status', 'features'];
@@ -76,10 +64,8 @@ class Model extends BaseModel
 
         foreach ($allowed as $col) {
             if (array_key_exists($col, $data)) {
-                $sets[]        = "$col = :$col";
-                $params[":$col"] = ($col === 'features')
-                    ? json_encode($data[$col])
-                    : $data[$col];
+                $sets[]          = "$col = :$col";
+                $params[":$col"] = ($col === 'features') ? json_encode($data[$col]) : $data[$col];
             }
         }
 
