@@ -14,6 +14,7 @@ class Routes
         $router->addRoute('/api/admin/metrics',     Controller::class, 'metrics',     ['cors', 'jwt']);
         $router->addRoute('/api/admin/impersonate', Controller::class, 'impersonate', ['cors', 'jwt']);
 
+        $router->addParamRoute('/api/admin/tenants/{id:int}',          Controller::class, 'updateTenant',    ['cors', 'jwt']);
         $router->addParamRoute('/api/admin/tenants/{id:int}/status', Controller::class, 'updateStatus',     ['cors', 'jwt']);
         $router->addParamRoute('/api/admin/tenants/{id:int}/plan',   Controller::class, 'updatePlan',       ['cors', 'jwt']);
         $router->addParamRoute('/api/admin/plans/{id:int}',          Controller::class, 'updatePlanDetails', ['cors', 'jwt']);

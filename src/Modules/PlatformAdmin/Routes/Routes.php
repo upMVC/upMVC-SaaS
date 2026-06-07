@@ -8,6 +8,7 @@ class Routes
 {
     public function routes($router): void
     {
-        $router->addRoute('/platform-admin', Controller::class, 'display');
+        $router->addRoute('/platform-admin',        Controller::class, 'display');
+        $router->addRoute('/platform-admin/assume', Controller::class, 'assume');
     }
 }

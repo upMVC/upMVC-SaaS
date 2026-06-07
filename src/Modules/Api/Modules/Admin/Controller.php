@@ -36,9 +36,11 @@ class Controller extends BaseApiController
         $body = $this->requireFields(['status']);
 
         $ok = (new Model())->updateStatus($id, $body['status']);
-        $ok
-            ? $this->success(null, 'Status updated')
-            : $this->error('Invalid status value or tenant not found', 400);
+        if ($ok) {
+            $this->success(null, 'Status updated');
+        } else {
+            $this->error('Invalid status value or tenant not found', 400);
+        }
     }
 
     /** PATCH /api/admin/tenants/{id}/plan   body: {"plan_id":2} */
@@ -48,9 +50,11 @@ class Controller extends BaseApiController
         $body = $this->requireFields(['plan_id']);
 
         $ok = (new Model())->updatePlan($id, (int) $body['plan_id']);
-        $ok
-            ? $this->success(null, 'Plan updated')
-            : $this->error('Update failed', 400);
+        if ($ok) {
+            $this->success(null, 'Plan updated');
+        } else {
+            $this->error('Update failed', 400);
+        }
     }
 
     /** GET /api/admin/dashboard */
@@ -76,7 +80,29 @@ class Controller extends BaseApiController
         $body = json_decode(file_get_contents('php://input'), true) ?? [];
 
         $ok = (new Model())->updatePlanDetails($id, $body);
-        $ok ? $this->success(null, 'Plan updated') : $this->error('Update failed', 400);
+        if ($ok) {
+            $this->success(null, 'Plan updated');
+        } else {
+            $this->error('Update failed', 400);
+        }
+    }
+
+    /** PATCH /api/admin/tenants/{id}   body: {name?, status?, plan_id?} */
+    public function updateTenant(): never
+    {
+        $id   = (int) ($_GET['id'] ?? 0);
+        $body = json_decode(file_get_contents('php://input'), true) ?? [];
+
+        if (empty($body)) {
+            $this->error('No fields to update', 400);
+        }
+
+        $ok = (new Model())->updateTenantFields($id, $body);
+        if ($ok) {
+            $this->success(null, 'Tenant updated');
+        } else {
+            $this->error('Update failed or nothing changed', 400);
+        }
     }
 
     /** POST /api/admin/impersonate   body: {"tenant_id": 5} */

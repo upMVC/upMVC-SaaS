@@ -6,6 +6,7 @@ use App\Common\Bmvc\BaseApiController;
 
 class Controller extends BaseApiController
 {
+    /** POST /api/tenants/register  (public) */
     public function register(): never
     {
         $body  = $this->requireFields(['slug', 'name', 'username', 'email', 'password']);
@@ -37,27 +38,58 @@ class Controller extends BaseApiController
         );
     }
 
+    /** GET /api/tenants/{id}  (JWT) — returns tenant with plan details */
     public function show(): never
     {
         $id = (int) ($_GET['id'] ?? 0);
         $this->assertTenantAccess($id);
 
-        $tenant = (new Model())->findById($id);
+        $tenant = (new Model())->findByIdWithPlan($id);
         if (!$tenant) {
             $this->error('Tenant not found', 404);
         }
 
-        $tenant['features'] = json_decode($tenant['features'] ?? '{}', true) ?? [];
+        $tenant['features']      = json_decode($tenant['features']      ?? '{}', true) ?? [];
+        $tenant['plan_features'] = json_decode($tenant['plan_features'] ?? '{}', true) ?? [];
+        $tenant['plan_limits']   = json_decode($tenant['plan_limits']   ?? '{}', true) ?? [];
+
         $this->success($tenant);
     }
 
+    /** GET /api/tenants/{id}/users  (JWT) — list users for tenant */
+    public function users(): never
+    {
+        $id = (int) ($_GET['id'] ?? 0);
+        $this->assertTenantAccess($id);
+
+        $this->success((new Model())->listUsers($id));
+    }
+
+    /** PATCH /api/tenants/{id}/update  (JWT) */
     public function update(): never
     {
         $id = (int) ($_GET['id'] ?? 0);
         $this->assertTenantAccess($id);
 
         $ok = (new Model())->update($id, $this->body());
-        $ok ? $this->success(null, 'Tenant updated') : $this->error('Nothing to update or update failed');
+        if ($ok) {
+            $this->success(null, 'Tenant updated');
+        } else {
+            $this->error('Nothing to update or update failed');
+        }
+    }
+
+    /** GET /api/public/tenants/{slug}  (public — no JWT) */
+    public function bySlug(): never
+    {
+        $slug   = trim($_GET['slug'] ?? '');
+        $tenant = (new Model())->findBySlugPublic($slug);
+
+        if (!$tenant) {
+            $this->error('Tenant not found', 404);
+        }
+
+        $this->success($tenant);
     }
 
     private function assertTenantAccess(int $id): void

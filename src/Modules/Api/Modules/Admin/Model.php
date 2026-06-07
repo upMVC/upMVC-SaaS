@@ -114,6 +114,29 @@ class Model extends BaseModel
         return $stmt->fetch(\PDO::FETCH_ASSOC);
     }
 
+    public function updateTenantFields(int $id, array $data): bool
+    {
+        $allowed = ['name', 'status', 'plan_id'];
+        $sets    = [];
+        $params  = [':id' => $id];
+
+        foreach ($allowed as $col) {
+            if (array_key_exists($col, $data)) {
+                $sets[]          = "$col = :$col";
+                $params[":$col"] = $data[$col];
+            }
+        }
+
+        if (empty($sets)) {
+            return false;
+        }
+
+        $stmt = $this->conn->prepare(
+            "UPDATE tenants SET " . implode(', ', $sets) . " WHERE id = :id AND deleted_at IS NULL"
+        );
+        return $stmt->execute($params);
+    }
+
     public function findTenantOwner(int $tenantId): array|false
     {
         $stmt = $this->conn->prepare(

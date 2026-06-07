@@ -111,6 +111,8 @@ class Controller
                     $_SESSION['iduser']        = $row['id'];
                     $_SESSION['role']          = $row['role'];
                     $_SESSION['tenant_id']     = $row['tenant_id'];
+                    $_SESSION['tenant_slug']   = $row['tenant_slug'] ?? '';
+                    $_SESSION['tenant_name']   = $row['tenant_name'] ?? '';
                     $_SESSION['logged']        = true;
                     $_SESSION['authenticated'] = true;
 
