@@ -2,16 +2,13 @@
 
 namespace App\Modules\PlatformAdmin;
 
-use App\Modules\SaaS\Modules\PlatformAdmin\Model as TenantModel;
-use App\Modules\SaaS\Modules\Plans\Model as PlansModel;
-use App\Etc\Security;
+use App\Etc\JwtService;
 
 class Controller
 {
-    private function guard(): void
+    public function display(): void
     {
         if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
-            $_SESSION['intended_url'] = BASE_URL . '/platform-admin';
             header('Location: ' . BASE_URL . '/auth');
             exit;
         }
@@ -21,95 +18,79 @@ class Controller
             echo '<h1>403 — Platform admin access required.</h1>';
             exit;
         }
+
+        (new View())->render();
     }
 
-    public function display(string $reqRoute, string $reqMet): void
+    /**
+     * Receives an impersonation JWT (POST), verifies it, swaps the PHP session
+     * to the tenant user, and redirects to /app.
+     */
+    public function assume(): void
     {
-        $this->guard();
-
-        // Dispatch by route pattern
-        if ($reqRoute === '/platform-admin' && $reqMet === 'GET') {
-            $this->listTenants();
-            return;
+        if (!isset($_SESSION['logged']) || ($_SESSION['role'] ?? '') !== 'platform_admin') {
+            header('Location: ' . BASE_URL . '/auth');
+            exit;
         }
 
-        // POST /platform-admin/tenants/{id}/status
-        if (str_ends_with($reqRoute, '/status') && $reqMet === 'POST') {
-            $this->updateStatus();
-            return;
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            header('Location: ' . BASE_URL . '/platform-admin');
+            exit;
         }
 
-        // POST /platform-admin/tenants/{id}/plan
-        if (str_ends_with($reqRoute, '/plan') && $reqMet === 'POST') {
-            $this->updatePlan();
-            return;
+        $token   = trim($_POST['token'] ?? '');
+        $payload = $token !== '' ? (new JwtService())->verify($token) : null;
+
+        if ($payload === null) {
+            header('Location: ' . BASE_URL . '/platform-admin');
+            exit;
         }
 
-        // Fallback — show tenant list
-        $this->listTenants();
+        // Stash admin identity so TenantApp can offer a "Return to Admin" link
+        $_SESSION['impersonating'] = [
+            'admin_id'       => $_SESSION['iduser'],
+            'admin_username' => $_SESSION['username'],
+            'admin_jwt'      => $_SESSION['jwt_token'] ?? '',
+        ];
+
+        session_regenerate_id(true);
+        $_SESSION['logged']        = true;
+        $_SESSION['authenticated'] = true;
+        $_SESSION['iduser']        = (int) $payload['sub'];
+        $_SESSION['username']      = $payload['username'];
+        $_SESSION['role']          = $payload['role'];
+        $_SESSION['tenant_id']     = $payload['tenant_id'];
+        $_SESSION['jwt_token']     = $token;
+
+        header('Location: ' . BASE_URL . '/app');
+        exit;
     }
 
-    // ---------------------------------------------------------------
-
-    private function listTenants(): void
+    /**
+     * Restores the original platform admin session after impersonation.
+     */
+    public function resume(): void
     {
-        $limit  = max(1, min(100, (int) ($_GET['limit']  ?? 50)));
-        $offset = max(0, (int) ($_GET['offset'] ?? 0));
-
-        $tenantModel = new TenantModel();
-        $plansModel  = new PlansModel();
-
-        $view = new View();
-        $view->renderList([
-            'tenants' => $tenantModel->listTenants($limit, $offset),
-            'total'   => $tenantModel->countTenants(),
-            'plans'   => $plansModel->listAll(),
-            'limit'   => $limit,
-            'offset'  => $offset,
-        ]);
-    }
-
-    private function updateStatus(): void
-    {
-        if (!$this->verifyCsrf()) {
-            $this->flashAndRedirect('error', 'Invalid CSRF token.');
+        if (!isset($_SESSION['impersonating'])) {
+            header('Location: ' . BASE_URL . '/platform-admin');
+            exit;
         }
 
-        $id     = (int) ($_GET['id'] ?? 0);
-        $status = trim($_POST['status'] ?? '');
+        $admin = $_SESSION['impersonating'];
 
-        $ok = (new TenantModel())->updateStatus($id, $status);
-        $ok
-            ? $this->flashAndRedirect('success', 'Status updated.')
-            : $this->flashAndRedirect('error', 'Invalid status value.');
-    }
+        session_regenerate_id(true);
+        $_SESSION['logged']        = true;
+        $_SESSION['authenticated'] = true;
+        $_SESSION['iduser']        = $admin['admin_id'];
+        $_SESSION['username']      = $admin['admin_username'];
+        $_SESSION['role']          = 'platform_admin';
+        $_SESSION['tenant_id']     = null;
+        $_SESSION['tenant_slug']   = '';
+        $_SESSION['tenant_name']   = '';
+        $_SESSION['jwt_token']     = $admin['admin_jwt'];
 
-    private function updatePlan(): void
-    {
-        if (!$this->verifyCsrf()) {
-            $this->flashAndRedirect('error', 'Invalid CSRF token.');
-        }
+        unset($_SESSION['impersonating']);
 
-        $id     = (int) ($_GET['id'] ?? 0);
-        $planId = (int) ($_POST['plan_id'] ?? 0);
-
-        $ok = (new TenantModel())->updatePlan($id, $planId);
-        $ok
-            ? $this->flashAndRedirect('success', 'Plan updated.')
-            : $this->flashAndRedirect('error', 'Plan update failed.');
-    }
-
-    // ---------------------------------------------------------------
-
-    private function verifyCsrf(): bool
-    {
-        return Security::validateCsrf($_POST['csrf_token'] ?? '');
-    }
-
-    private function flashAndRedirect(string $type, string $msg): never
-    {
-        $_SESSION['flash_type'] = $type;
-        $_SESSION['flash_msg']  = $msg;
         header('Location: ' . BASE_URL . '/platform-admin');
         exit;
     }

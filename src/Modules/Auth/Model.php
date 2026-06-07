@@ -47,9 +47,11 @@ class Model extends BaseModel
     ///read user login////////////////
     public function readUserLogin()
     {
-        $q = "SELECT id, username, password, state, role, tenant_id
-          FROM users
-          WHERE username = :username";
+        $q = "SELECT u.id, u.username, u.password, u.state, u.role, u.tenant_id,
+                     t.slug AS tenant_slug, t.name AS tenant_name
+              FROM   users u
+              LEFT JOIN tenants t ON t.id = u.tenant_id
+              WHERE  u.username = :username";
 
         $stmt = $this->conn->prepare($q);
         //sanitize

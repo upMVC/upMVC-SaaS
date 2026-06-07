@@ -96,6 +96,41 @@ class JwtService
         return "$h.$p.$s";
     }
 
+    /**
+     * Verify a signed HS256 JWT and return its payload, or null if invalid/expired.
+     */
+    public function verify(string $token): ?array
+    {
+        $parts = explode('.', $token);
+        if (count($parts) !== 3) {
+            return null;
+        }
+
+        [$header, $payload, $sig] = $parts;
+
+        if ($this->secret === '') {
+            return null;
+        }
+
+        $expected = hash_hmac('sha256', "$header.$payload", $this->secret, true);
+        $provided = base64_decode(strtr($sig, '-_', '+/'));
+
+        if (!hash_equals($expected, $provided)) {
+            return null;
+        }
+
+        $data = json_decode(base64_decode(strtr($payload, '-_', '+/')), true);
+        if (!is_array($data)) {
+            return null;
+        }
+
+        if (isset($data['exp']) && $data['exp'] < time()) {
+            return null;
+        }
+
+        return $data;
+    }
+
     private function b64u(string $data): string
     {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');

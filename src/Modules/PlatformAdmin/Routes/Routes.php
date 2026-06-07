@@ -8,10 +8,8 @@ class Routes
 {
     public function routes($router): void
     {
-        $router->addRoute('/platform-admin', Controller::class, 'display');
-
-        // Status and plan updates carry the tenant ID in the path
-        $router->addParamRoute('/platform-admin/tenants/{id:int}/status', Controller::class, 'display');
-        $router->addParamRoute('/platform-admin/tenants/{id:int}/plan',   Controller::class, 'display');
+        $router->addRoute('/platform-admin',         Controller::class, 'display');
+        $router->addRoute('/platform-admin/assume',  Controller::class, 'assume');
+        $router->addRoute('/platform-admin/resume',  Controller::class, 'resume');
     }
 }

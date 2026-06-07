@@ -30,7 +30,7 @@
 
 namespace App\Modules\Auth;
 
-use App\Common\Bmvc\BaseView;
+use App\Etc\JwtService;
 use App\Modules\mail\MailController;
 use PDO;
 
@@ -110,8 +110,19 @@ class Controller
                     $_SESSION['iduser']        = $row['id'];
                     $_SESSION['role']          = $row['role'];
                     $_SESSION['tenant_id']     = $row['tenant_id'];
+                    $_SESSION['tenant_slug']   = $row['tenant_slug'] ?? '';
+                    $_SESSION['tenant_name']   = $row['tenant_name'] ?? '';
                     $_SESSION['logged']        = true;
                     $_SESSION['authenticated'] = true;
+
+                    // Issue a JWT so web shells (PlatformAdmin, TenantApp) can call the API via JS
+                    $jwt = (new JwtService())->issueAccessToken([
+                        'sub'       => (int) $row['id'],
+                        'username'  => $row['username'],
+                        'tenant_id' => $row['tenant_id'],
+                        'role'      => $row['role'],
+                    ]);
+                    $_SESSION['jwt_token'] = $jwt;
 
                     $intendedUrl = $_SESSION['intended_url'] ?? null;
                     unset($_SESSION['intended_url']);
@@ -129,89 +140,42 @@ class Controller
             }
         }
 
-        // Render login form (GET request or failed POST)
-        $view        = new BaseView();
-        $this->html  = new View();
-        $this->title = "Login Page";
-        $view->startHead($this->title);
-        $this->html->cssLogin();
-        $view->endHead();
-        $view->startBody($this->title);
-
-        if ($loginError !== null) {
-            echo '<p style="color:red;text-align:center">' . htmlspecialchars($loginError) . '</p>';
-        }
-
-        $this->html->login();
-        $this->html->validate();
-
-        $view->endBody();
-        $view->startFooter();
-        $view->endFooter();
+        (new View())->renderLogin($loginError);
     }
 
-    private function logout()
+    private function logout(): void
     {
-
         session_unset();
         session_destroy();
-        //session_write_close()
-        \ob_start();
-        $view        = new BaseView();
-        $this->html = new View();
-        $this->title = "GoodBye";
-        $view->startHead($this->title);
-        $this->html->cssLogin();
-        $view->endHead();
-        $view->startBody($this->title);
-        //do something
-        $view->endBody();
-        $view->startFooter();
-        $view->endFooter();
-        \ob_clean();
-
-        //header("Refresh: 3; url=$this->url")
-        //echo "Bye! You will be redirected to the home page in 3 seconds!"
-        header("Location: $this->url");
+        header('Location: ' . $this->url);
+        exit;
     }
 
-    private function signUp()
+    private function signUp(): void
     {
-        $view        = new BaseView();
-        $this->html = new View();
-        $user = new Model();
-        $newSent = new MailController();
-        $this->title = "Signup Page";
-        $view->startHead($this->title);
-        $this->html->cssLogin();
-        $view->endHead();
-        $view->startBody($this->title);
-        if (isset($_POST["signup"])) {
-            $token          = $this->TokenGenerator(31);
+        $sent = false;
+        if (isset($_POST['signup'])) {
+            $user           = new Model();
+            $token          = $this->tokenGenerator(31);
             $user->token    = $token;
-            $user->name = $_POST["name"];
-            $user->username = $_POST['username'];
-            $user->email    = $_POST['email'];
-            $user->password     = $_POST['password'];
-            //$stmt           = $user->createUserSignup()
+            $user->name     = $_POST['name']     ?? '';
+            $user->username = $_POST['username'] ?? '';
+            $user->email    = $_POST['email']    ?? '';
+            $user->password = $_POST['password'] ?? '';
             $user->createUserSignup();
-            //confirmation email
-            $this->url     = BASE_URL . "/activation?token=" . $token;
-            $to      = $_POST['email'];
-            $from    = 'office@bitsworld.ro';
-            $subject = "Account Activation";
-            $message = '<p>Activate your account:
-            <br> <a href="' . $this->url . '"> Click on confirmation link.</a></p>';
-            $newSent->sendMailByPHPMailer($to, $from, $subject, $message);
-            $this->html->welcomeNew();
-        } else {
-            $this->html->signup();
-            $this->html->validateSignUp();
+
+            $activationUrl = BASE_URL . '/activation?token=' . $token;
+            $mailer = new MailController();
+            $mailer->sendMailByPHPMailer(
+                $_POST['email'] ?? '',
+                'office@bitsworld.ro',
+                'Account Activation',
+                '<p>Activate your account: <a href="' . $activationUrl . '">Click here</a></p>'
+            );
+            $sent = true;
         }
 
-        $view->endBody();
-        $view->startFooter();
-        $view->endFooter();
+        (new View())->renderSignup($sent);
     }
 
     private function tokenGenerator(int $tokenLength): string
