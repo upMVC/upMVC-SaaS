@@ -35,7 +35,7 @@ class View
 
         <script>
         const BASE = <?php echo json_encode($base); ?>;
-        const token = sessionStorage.getItem('access_token') || localStorage.getItem('access_token') || '';
+        const token = <?php echo json_encode($_SESSION['jwt_token'] ?? ''); ?>;
 
         function flash(msg, type) {
             const el = document.getElementById('flash-msg');

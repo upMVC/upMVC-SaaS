@@ -31,6 +31,7 @@
 namespace App\Modules\Auth;
 
 use App\Common\Bmvc\BaseView;
+use App\Etc\JwtService;
 use App\Modules\mail\MailController;
 use PDO;
 
@@ -112,6 +113,15 @@ class Controller
                     $_SESSION['tenant_id']     = $row['tenant_id'];
                     $_SESSION['logged']        = true;
                     $_SESSION['authenticated'] = true;
+
+                    // Issue a JWT so web shells (PlatformAdmin, TenantApp) can call the API via JS
+                    $jwt = (new JwtService())->issueAccessToken([
+                        'sub'       => (int) $row['id'],
+                        'username'  => $row['username'],
+                        'tenant_id' => $row['tenant_id'],
+                        'role'      => $row['role'],
+                    ]);
+                    $_SESSION['jwt_token'] = $jwt;
 
                     $intendedUrl = $_SESSION['intended_url'] ?? null;
                     unset($_SESSION['intended_url']);
