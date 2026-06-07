@@ -391,18 +391,31 @@ class View
 
 <script>
 const BASE  = <?php echo json_encode($base); ?>;
-const token = <?php echo json_encode($_SESSION['jwt_token'] ?? ''); ?>;
+let   token = <?php echo json_encode($_SESSION['jwt_token'] ?? ''); ?>;
 
 let plans     = [];
 let editingId = null;
 
 // ── API helper ───────────────────────────────────────────────────────────────
 
+async function refreshToken() {
+    try {
+        const r = await fetch(BASE + '/auth/session-refresh', { method: 'POST' });
+        const d = await r.json();
+        if (d.success) { token = d.access_token; return true; }
+    } catch (_) {}
+    return false;
+}
+
 async function api(path, opts = {}) {
-    const res = await fetch(BASE + path, {
-        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', ...(opts.headers || {}) },
-        ...opts,
-    });
+    const headers = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', ...(opts.headers || {}) };
+    const res = await fetch(BASE + path, { ...opts, headers });
+    if (res.status === 401) {
+        const ok = await refreshToken();
+        if (!ok) { window.location.href = BASE + '/auth'; return null; }
+        const headers2 = { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', ...(opts.headers || {}) };
+        return (await fetch(BASE + path, { ...opts, headers: headers2 })).json();
+    }
     return res.json();
 }
 

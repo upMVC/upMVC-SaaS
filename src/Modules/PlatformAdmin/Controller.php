@@ -60,6 +60,8 @@ class Controller
         $_SESSION['username']      = $payload['username'];
         $_SESSION['role']          = $payload['role'];
         $_SESSION['tenant_id']     = $payload['tenant_id'];
+        $_SESSION['tenant_slug']   = $payload['tenant_slug'] ?? '';
+        $_SESSION['tenant_name']   = $payload['tenant_name'] ?? '';
         $_SESSION['jwt_token']     = $token;
 
         header('Location: ' . BASE_URL . '/app');

@@ -51,6 +51,7 @@ class Routes
         $router->addRoute('/logout', Controller::class, 'display');
         $router->addRoute('/signup', Controller::class, 'display');
         $router->addRoute('/activation', Controller::class, 'display');
+        $router->addRoute('/auth/session-refresh', Controller::class, 'sessionRefresh');
         //$router->addRoute('/ariel', Controller::class, 'display');
        
     }
