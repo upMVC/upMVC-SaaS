@@ -15,6 +15,9 @@ private-vault/
 # Database seed data (test/ghost data — never commit to production)
 database/saas-seed.sql
 
+# Storage (uploads, cache, generated files)
+storage/
+
 # Local tools folder (DB managers, one-off scripts, local helpers)
 # Committed schema/migrations live in /database — this is for local tooling only
 tools/
@@ -58,8 +61,9 @@ temp/
 cache/
 *.cache
 
-# Database dumps
-*.sql
+# Database dumps (keep database/demo.sql and database/migrate.php)
+database/*.sql
+!database/demo.sql
 *.db
 *.sqlite
 

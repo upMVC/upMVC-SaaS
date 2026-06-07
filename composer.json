@@ -28,5 +28,12 @@
         "psr-4": {
             "App\\": "src/"
         }
-    }
+    },
+    "scripts": {
+        "post-create-project-cmd": [
+            "php scripts/setup.php"
+        ]
+    },
+    "keywords": ["saas", "multi-tenant", "php", "mvc", "jwt", "starter", "boilerplate"],
+    "homepage": "https://upmvc.com"
 }

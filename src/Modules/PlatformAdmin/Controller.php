@@ -65,4 +65,33 @@ class Controller
         header('Location: ' . BASE_URL . '/app');
         exit;
     }
+
+    /**
+     * Restores the original platform admin session after impersonation.
+     */
+    public function resume(): void
+    {
+        if (!isset($_SESSION['impersonating'])) {
+            header('Location: ' . BASE_URL . '/platform-admin');
+            exit;
+        }
+
+        $admin = $_SESSION['impersonating'];
+
+        session_regenerate_id(true);
+        $_SESSION['logged']        = true;
+        $_SESSION['authenticated'] = true;
+        $_SESSION['iduser']        = $admin['admin_id'];
+        $_SESSION['username']      = $admin['admin_username'];
+        $_SESSION['role']          = 'platform_admin';
+        $_SESSION['tenant_id']     = null;
+        $_SESSION['tenant_slug']   = '';
+        $_SESSION['tenant_name']   = '';
+        $_SESSION['jwt_token']     = $admin['admin_jwt'];
+
+        unset($_SESSION['impersonating']);
+
+        header('Location: ' . BASE_URL . '/platform-admin');
+        exit;
+    }
 }
