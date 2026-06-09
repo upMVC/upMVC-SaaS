@@ -306,7 +306,7 @@ class View
 
 <script>
 const BASE      = <?php echo json_encode($base); ?>;
-const TOKEN     = <?php echo json_encode($s['token']); ?>;
+let   TOKEN     = <?php echo json_encode($s['token']); ?>;
 const TENANT_ID = <?php echo (int) $s['tenant_id']; ?>;
 const SLUG      = <?php echo json_encode($slug); ?>;
 const PATH      = window.location.pathname;
@@ -317,10 +317,26 @@ const statusColors = {
     suspended: { bg: '#fee2e2', fg: '#991b1b' },
 };
 
+async function refreshToken() {
+    try {
+        const r = await fetch(BASE + '/auth/session-refresh', { method: 'POST' });
+        const d = await r.json();
+        if (d.success) { TOKEN = d.access_token; return true; }
+    } catch (_) {}
+    return false;
+}
+
 async function api(path) {
     const res = await fetch(BASE + path, {
         headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' }
     });
+    if (res.status === 401) {
+        const ok = await refreshToken();
+        if (!ok) { window.location.href = BASE + '/auth'; return null; }
+        return (await fetch(BASE + path, {
+            headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' }
+        })).json();
+    }
     return res.json();
 }
 

@@ -130,6 +130,8 @@ class Controller extends BaseApiController
             'sub'          => (int) $owner['id'],
             'username'     => $owner['username'],
             'tenant_id'    => $tenantId,
+            'tenant_slug'  => $tenant['slug'],
+            'tenant_name'  => $tenant['name'],
             'role'         => $owner['role'],
             'impersonated' => true,
         ]);

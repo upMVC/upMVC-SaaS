@@ -130,4 +130,22 @@ class Model extends BaseModel
         );
         return $stmt->execute([':id' => $id]);
     }
+
+    /**
+     * Create a tenant and its first owner user in a single transaction.
+     * Returns ['success'=>true,'tenant_id'=>int,'user_id'=>int] or ['success'=>false,'error'=>string].
+     */
+    public function createWithOwner(array $tenantData, array $userData): array
+    {
+        try {
+            $this->conn->beginTransaction();
+            $tenantId = $this->create($tenantData);
+            $userId   = $this->createOwnerUser($tenantId, $userData);
+            $this->conn->commit();
+            return ['success' => true, 'tenant_id' => $tenantId, 'user_id' => $userId];
+        } catch (\Exception $e) {
+            $this->conn->rollBack();
+            return ['success' => false, 'error' => 'Registration failed. Username or email may already be in use.'];
+        }
+    }
 }

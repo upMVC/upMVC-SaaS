@@ -155,6 +155,7 @@ class View
                            autocomplete="current-password" placeholder="••••••••">
                     <span class="field-err" id="password_info"></span>
                 </div>
+                <input type="hidden" name="csrf_token" value="<?php echo \App\Etc\Security::csrfToken(); ?>">
                 <button type="submit" name="login" class="btn-primary">Sign in</button>
             </form>
             <p class="auth-switch">Don't have an account? <a href="<?php echo $base; ?>/signup">Create one</a></p>
@@ -182,7 +183,7 @@ function validate() {
         <?php
     }
 
-    public function renderSignup(bool $sent = false): void
+    public function renderSignup(bool $sent = false, ?string $error = null): void
     {
         $base = BASE_URL;
 
@@ -272,6 +273,10 @@ function validate() {
         .auth-card { width: 100%; max-width: 380px; }
         .auth-card h2 { font-size: 1.75rem; font-weight: 700; color: #0f172a; margin-bottom: 6px; letter-spacing: -0.5px; }
         .auth-sub { color: #64748b; font-size: 0.9rem; margin-bottom: 28px; }
+        .auth-error {
+            background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;
+            border-radius: 8px; padding: 11px 14px; font-size: 0.875rem; margin-bottom: 20px;
+        }
         .field { margin-bottom: 18px; }
         .field label {
             display: block; font-size: 0.82rem; font-weight: 600; color: #374151;
@@ -346,10 +351,18 @@ function validate() {
     <div class="auth-panel">
         <div class="auth-card">
             <h2>Create account</h2>
-            <p class="auth-sub">Start your free account today</p>
+            <p class="auth-sub">Set up your workspace in seconds</p>
+            <?php if ($error !== null): ?>
+            <div class="auth-error"><?php echo htmlspecialchars($error); ?></div>
+            <?php endif; ?>
             <form method="POST" action="" onsubmit="return validate()">
                 <div class="field">
-                    <label for="name">Full name</label>
+                    <label for="company_name">Company / workspace name</label>
+                    <input type="text" id="company_name" name="company_name" autocomplete="organization" placeholder="Acme Corp">
+                    <span class="field-err" id="company_info"></span>
+                </div>
+                <div class="field">
+                    <label for="name">Your full name</label>
                     <input type="text" id="name" name="name" autocomplete="name" placeholder="Jane Smith">
                     <span class="field-err" id="name_info"></span>
                 </div>
@@ -368,6 +381,7 @@ function validate() {
                     <input type="password" id="password" name="password" autocomplete="new-password" placeholder="••••••••">
                     <span class="field-err" id="password_info"></span>
                 </div>
+                <input type="hidden" name="csrf_token" value="<?php echo \App\Etc\Security::csrfToken(); ?>">
                 <button type="submit" name="signup" class="btn-primary">Create account</button>
             </form>
             <p class="auth-switch">Already have an account? <a href="<?php echo $base; ?>/auth">Sign in</a></p>
@@ -377,9 +391,12 @@ function validate() {
 <script>
 function validate() {
     var ok = true;
-    ['name_info','user_info','email_info','password_info'].forEach(function(id) {
+    ['company_info','name_info','user_info','email_info','password_info'].forEach(function(id) {
         document.getElementById(id).textContent = '';
     });
+    if (!document.getElementById('company_name').value.trim()) {
+        document.getElementById('company_info').textContent = 'Required'; ok = false;
+    }
     if (!document.getElementById('name').value.trim()) {
         document.getElementById('name_info').textContent = 'Required'; ok = false;
     }

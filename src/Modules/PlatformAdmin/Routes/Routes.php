@@ -8,8 +8,8 @@ class Routes
 {
     public function routes($router): void
     {
-        $router->addRoute('/platform-admin',         Controller::class, 'display');
-        $router->addRoute('/platform-admin/assume',  Controller::class, 'assume');
-        $router->addRoute('/platform-admin/resume',  Controller::class, 'resume');
+        $router->addRoute('/platform-admin',        Controller::class, 'display');
+        $router->addRoute('/platform-admin/assume', Controller::class, 'assume', ['csrf']);
+        $router->addRoute('/platform-admin/resume', Controller::class, 'resume');
     }
 }

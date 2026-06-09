@@ -31,7 +31,9 @@
 namespace App\Modules\Auth;
 
 use App\Etc\JwtService;
-use App\Modules\Mail\MailController;
+use App\Etc\Security;
+use App\Modules\Api\Modules\Auth\Model as ApiAuthModel;
+use App\Modules\Api\Modules\Tenants\Model as TenantModel;
 use PDO;
 
 class Controller
@@ -97,6 +99,12 @@ class Controller
 
         // Process POST before any HTML output so session cookie can be set
         if ($_POST) {
+            // Brute-force guard: 10 attempts per IP per 15 minutes
+            if (!Security::rateLimit('login:' . ($_SERVER['REMOTE_ADDR'] ?? ''), 10, 900)) {
+                (new View())->renderLogin('Too many login attempts. Please wait 15 minutes before trying again.');
+                return;
+            }
+
             $users           = new Model();
             $users->username = $_POST['username'] ?? '';
             $inputPassword   = $_POST['password'] ?? '';
@@ -116,13 +124,19 @@ class Controller
                     $_SESSION['authenticated'] = true;
 
                     // Issue a JWT so web shells (PlatformAdmin, TenantApp) can call the API via JS
-                    $jwt = (new JwtService())->issueAccessToken([
+                    $jwtSvc      = new JwtService();
+                    $jwt         = $jwtSvc->issueAccessToken([
                         'sub'       => (int) $row['id'],
                         'username'  => $row['username'],
                         'tenant_id' => $row['tenant_id'],
                         'role'      => $row['role'],
                     ]);
                     $_SESSION['jwt_token'] = $jwt;
+
+                    $rawRefresh = $jwtSvc->issueRefreshToken();
+                    $expiresAt  = date('Y-m-d H:i:s', time() + $jwtSvc->getRefreshTtl());
+                    (new ApiAuthModel())->storeRefreshToken((int) $row['id'], hash('sha256', $rawRefresh), $expiresAt);
+                    $_SESSION['refresh_token'] = $rawRefresh;
 
                     $intendedUrl = $_SESSION['intended_url'] ?? null;
                     unset($_SESSION['intended_url']);
@@ -153,36 +167,125 @@ class Controller
 
     private function signUp(): void
     {
-        $sent = false;
-        if (isset($_POST['signup'])) {
-            $user           = new Model();
-            $token          = $this->tokenGenerator(31);
-            $user->token    = $token;
-            $user->name     = $_POST['name']     ?? '';
-            $user->username = $_POST['username'] ?? '';
-            $user->email    = $_POST['email']    ?? '';
-            $user->password = $_POST['password'] ?? '';
-            $user->createUserSignup();
+        $error = null;
 
-            $activationUrl = BASE_URL . '/activation?token=' . $token;
-            $mailer = new MailController();
-            $mailer->sendMailByPHPMailer(
-                $_POST['email'] ?? '',
-                'office@bitsworld.ro',
-                'Account Activation',
-                '<p>Activate your account: <a href="' . $activationUrl . '">Click here</a></p>'
+        if (isset($_POST['signup'])) {
+            $companyName = trim($_POST['company_name'] ?? '');
+            $name        = trim($_POST['name']         ?? '');
+            $username    = trim($_POST['username']     ?? '');
+            $email       = trim($_POST['email']        ?? '');
+            $password    = $_POST['password']          ?? '';
+
+            // Build a URL-safe slug from the company name
+            $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', $companyName));
+            $slug = trim($slug, '-');
+            if ($slug === '') {
+                $slug = strtolower(preg_replace('/[^a-z0-9]+/i', '-', $username));
+                $slug = trim($slug, '-');
+            }
+
+            $tenantModel = new TenantModel();
+
+            // Ensure slug is unique — append random suffix if taken
+            if ($tenantModel->findBySlug($slug)) {
+                $slug .= '-' . substr(bin2hex(random_bytes(2)), 0, 4);
+            }
+
+            $result = $tenantModel->createWithOwner(
+                ['slug' => $slug, 'name' => $companyName],
+                ['name' => $name, 'username' => $username, 'email' => $email, 'password' => $password]
             );
-            $sent = true;
+
+            if ($result['success']) {
+                $tenantId = $result['tenant_id'];
+                $userId   = $result['user_id'];
+
+                session_regenerate_id(true);
+                $_SESSION['username']      = $username;
+                $_SESSION['iduser']        = $userId;
+                $_SESSION['role']          = 'tenant_owner';
+                $_SESSION['tenant_id']     = $tenantId;
+                $_SESSION['tenant_slug']   = $slug;
+                $_SESSION['tenant_name']   = $companyName;
+                $_SESSION['logged']        = true;
+                $_SESSION['authenticated'] = true;
+
+                $jwt         = new JwtService();
+                $accessToken = $jwt->issueAccessToken([
+                    'sub'       => $userId,
+                    'username'  => $username,
+                    'tenant_id' => $tenantId,
+                    'role'      => 'tenant_owner',
+                ]);
+                $_SESSION['jwt_token'] = $accessToken;
+
+                $rawRefresh = $jwt->issueRefreshToken();
+                $expiresAt  = date('Y-m-d H:i:s', time() + $jwt->getRefreshTtl());
+                (new ApiAuthModel())->storeRefreshToken($userId, hash('sha256', $rawRefresh), $expiresAt);
+                $_SESSION['refresh_token'] = $rawRefresh;
+
+                header('Location: ' . BASE_URL . '/app/' . $slug . '/admin');
+                exit;
+            }
+
+            $error = $result['error'] ?? 'Registration failed. Try a different username or email.';
         }
 
-        (new View())->renderSignup($sent);
+        (new View())->renderSignup(false, $error);
     }
 
-    private function tokenGenerator(int $tokenLength): string
+    public function sessionRefresh(): void
     {
-        // random_bytes gives cryptographically secure random data; bin2hex doubles the length
-        $bytes = (int) ceil($tokenLength / 2);
-        return substr(bin2hex(random_bytes($bytes)), 0, $tokenLength);
+        header('Content-Type: application/json');
+
+        if (!isset($_SESSION['logged']) || $_SESSION['logged'] !== true) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Not authenticated']);
+            exit;
+        }
+
+        $rawRefresh = $_SESSION['refresh_token'] ?? '';
+        if ($rawRefresh === '') {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'No refresh token in session']);
+            exit;
+        }
+
+        $tokenHash = hash('sha256', $rawRefresh);
+        $model     = new ApiAuthModel();
+        $record    = $model->findRefreshToken($tokenHash);
+
+        if (!$record || $record['revoked_at'] !== null || strtotime($record['expires_at']) < time()) {
+            http_response_code(401);
+            echo json_encode(['success' => false, 'message' => 'Refresh token invalid or expired — please log in again']);
+            exit;
+        }
+
+        $model->revokeRefreshToken($tokenHash);
+        $user = $model->findUserById((int) $record['user_id']);
+
+        if (!$user) {
+            http_response_code(401);
+            echo json_encode(['success' => false]);
+            exit;
+        }
+
+        $jwtSvc     = new JwtService();
+        $newAccess  = $jwtSvc->issueAccessToken([
+            'sub'       => (int) $user['id'],
+            'username'  => $user['username'],
+            'tenant_id' => (int) $user['tenant_id'],
+            'role'      => $user['role'],
+        ]);
+        $newRaw    = $jwtSvc->issueRefreshToken();
+        $expiresAt = date('Y-m-d H:i:s', time() + $jwtSvc->getRefreshTtl());
+        $model->storeRefreshToken((int) $user['id'], hash('sha256', $newRaw), $expiresAt);
+
+        $_SESSION['jwt_token']     = $newAccess;
+        $_SESSION['refresh_token'] = $newRaw;
+
+        echo json_encode(['success' => true, 'access_token' => $newAccess]);
+        exit;
     }
 
     private function accountActivation()

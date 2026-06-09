@@ -46,11 +46,12 @@ class Routes
      */
     public function routes($router)
     {
-        $router->addRoute('/auth', Controller::class, 'display');
-        $router->addRoute('/login', Controller::class, 'display');
-        $router->addRoute('/logout', Controller::class, 'display');
-        $router->addRoute('/signup', Controller::class, 'display');
-        $router->addRoute('/activation', Controller::class, 'display');
+        $router->addRoute('/auth',                 Controller::class, 'display',        ['csrf']);
+        $router->addRoute('/login',                Controller::class, 'display',        ['csrf']);
+        $router->addRoute('/logout',               Controller::class, 'display');
+        $router->addRoute('/signup',               Controller::class, 'display',        ['csrf']);
+        $router->addRoute('/activation',           Controller::class, 'display');
+        $router->addRoute('/auth/session-refresh', Controller::class, 'sessionRefresh');
         //$router->addRoute('/ariel', Controller::class, 'display');
        
     }
