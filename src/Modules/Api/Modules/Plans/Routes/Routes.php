@@ -8,7 +8,7 @@ class Routes
 {
     public function routes($router): void
     {
-        $router->addRoute('/api/plans', Controller::class, 'index', ['cors']);
-        $router->addParamRoute('/api/plans/{id:int}', Controller::class, 'show', ['cors']);
+        $router->addRoute('/api/plans', Controller::class, 'index', ['cors'], ['GET']);
+        $router->addParamRoute('/api/plans/{id:int}', Controller::class, 'show', ['cors'], [], ['GET']);
     }
 }
