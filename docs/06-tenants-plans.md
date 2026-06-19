@@ -81,7 +81,7 @@ Resolved tenant is stored in `$GLOBALS['current_tenant']` for the duration of th
 
 ## Customising plans
 
-Edit the seed data in `database/migrations/002_saas_layer.sql` or update directly:
+Edit the demo seed data in `database/demo.sql`, add a future migration in the SaaS pack, or update directly:
 
 ```sql
 UPDATE plans SET

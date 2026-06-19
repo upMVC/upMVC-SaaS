@@ -2,7 +2,7 @@
 
 /**
  * Post-create-project setup script.
- * Runs automatically after: composer create-project bitshost/upmvc-saas my-app
+ * Runs automatically after creating the upMVC-SaaS starter app.
  */
 
 $root = dirname(__DIR__);
@@ -14,7 +14,7 @@ $bold   = "\033[1m";
 $reset  = "\033[0m";
 
 echo "\n";
-echo "  {$bold}upMVC SaaS — Project Setup{$reset}\n";
+echo "  {$bold}upMVC SaaS Starter — Project Setup{$reset}\n";
 echo "  " . str_repeat('─', 40) . "\n\n";
 
 // ── 1. Copy .env ─────────────────────────────────────────────────────────────
@@ -54,6 +54,7 @@ if (file_exists($envFile)) {
 $dirs = [
     'storage'       => $root . '/storage',
     'storage/cache' => $root . '/storage/cache',
+    'storage/logs'  => $root . '/storage/logs',
     'src/logs'      => $root . '/src/logs',
 ];
 
@@ -74,12 +75,14 @@ echo "\n";
 echo "  {$bold}Next steps:{$reset}\n\n";
 echo "  {$cyan}1.{$reset} Edit {$bold}src/Etc/.env{$reset}\n";
 echo "     Set DB_HOST, DB_NAME, DB_USER, DB_PASS and SITE_PATH\n\n";
-echo "  {$cyan}2.{$reset} Import the schema and demo data:\n";
+echo "  {$cyan}2.{$reset} Ensure Composer installed the kernel and SaaS pack:\n";
+echo "     {$bold}composer install{$reset}\n\n";
+echo "  {$cyan}3.{$reset} Import the schema and demo data:\n";
 echo "     {$bold}mysql -u root -p your_db < database/demo.sql{$reset}\n\n";
-echo "  {$cyan}3.{$reset} Point your web server document root to {$bold}/public{$reset}\n";
+echo "  {$cyan}4.{$reset} Point your web server document root to {$bold}/public{$reset}\n";
 echo "     or run the built-in server:\n";
 echo "     {$bold}php -S localhost:8000 -t public{$reset}\n\n";
-echo "  {$cyan}4.{$reset} Open {$bold}/auth{$reset} in your browser and sign in\n\n";
+echo "  {$cyan}5.{$reset} Open {$bold}/auth{$reset} in your browser and sign in\n\n";
 echo "  " . str_repeat('─', 40) . "\n";
 echo "  Docs: https://upmvc.com  |  Issues: GitHub\n";
 echo "\n";

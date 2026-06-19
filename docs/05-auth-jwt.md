@@ -55,7 +55,7 @@ Include in every authenticated request:
 Authorization: Bearer eyJ...
 ```
 
-The `JwtAuthMiddleware` validates the token and populates `$GLOBALS['current_user']` with the decoded payload. Controllers access it via `$this->user` (inherited from `BaseApiController`).
+The `JwtAuthMiddleware` validates the token and populates `$GLOBALS['current_user']` with the decoded payload. SaaS pack controllers access it via `$this->user` from `SaasApiController`.
 
 ---
 

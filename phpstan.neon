@@ -3,8 +3,8 @@ parameters:
     treatPhpDocTypesAsCertain: false
     paths:
         - src/Etc
-        - src/Common
-        - src/Modules
+        - public
+        - scripts
     excludePaths:
         - vendor
         - logs
@@ -26,16 +26,5 @@ parameters:
         -
             message: '#Call to an undefined static method App\\Etc\\Cache\\CacheManager::(get|put|forget|has|flush)#'
             path: src/*
-        # bv-nav partial — variables injected via extract() at include-time
-        -
-            message: '#Variable \$(base|role|logged|roleBadge|uname) might not be defined#'
-            path: src/Common/Assets/bv-nav.php
-        -
-            message: '#Call to protected method (isActive|dropActive)\(\) of class#'
-            path: src/Common/Assets/bv-nav.php
-        # TenantApp uses SITEPATH legacy constant
-        -
-            message: '#Constant SITEPATH not found#'
-            path: src/Modules/TenantApp/*
     bootstrapFiles:
         - vendor/autoload.php

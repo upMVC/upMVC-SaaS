@@ -21,7 +21,7 @@ Initial public beta release.
 
 - Session-based login for web shells (`/auth`, `/login`)
 - Stateless JWT (HS256) issued at login, stored in `$_SESSION['jwt_token']`, injected into JS shells
-- Refresh token rotation with theft detection (`token_family` chain)
+- Refresh token rotation with reuse detection and user-token revocation
 - Account activation via email token (PHPMailer)
 - Role-based access: `platform_admin`, `tenant_owner`, `tenant_user`
 - Login enriches session with `tenant_slug` and `tenant_name` via LEFT JOIN — no extra DB calls in web shells
@@ -32,7 +32,7 @@ Initial public beta release.
 - Tenant isolation — all data scoped to `tenant_id`
 - Tenant lifecycle: `active`, `trial`, `suspended`
 - Plans with price, feature flags (JSON), and limits (JSON)
-- `PlanGateMiddleware` — enforces plan limits per API request
+- `PlanGateMiddleware` — enforces feature flags per route
 - `TenantMiddleware` — resolves tenant context from JWT on every API call
 
 ### Platform Admin
