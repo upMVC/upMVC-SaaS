@@ -15,13 +15,15 @@
                 "reference": "afcd6c3bd8819566ead39833c4c0fbe0ebcda69f"
             },
             "require": {
-                "gabordemooij/redbean": "^5.7",
                 "php": ">=8.1",
                 "phpmailer/phpmailer": "^6.9"
             },
             "require-dev": {
                 "phpstan/phpstan": "^1.10",
                 "phpunit/phpunit": "^11.0"
+            },
+            "suggest": {
+                "gabordemooij/redbean": "Install only if you use the optional RedBean ORM base model or ORM demo modules."
             },
             "type": "project",
             "autoload": {
@@ -97,54 +99,6 @@
                 "symlink": true,
                 "relative": true
             }
-        },
-        {
-            "name": "gabordemooij/redbean",
-            "version": "v5.7.6",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/gabordemooij/redbean.git",
-                "reference": "5d678eba2d1e1ad203bc19c35b3c0d50b560a26c"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/gabordemooij/redbean/zipball/5d678eba2d1e1ad203bc19c35b3c0d50b560a26c",
-                "reference": "5d678eba2d1e1ad203bc19c35b3c0d50b560a26c",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.3.4"
-            },
-            "type": "library",
-            "autoload": {
-                "files": [
-                    "RedBeanPHP/Functions.php"
-                ],
-                "psr-4": {
-                    "RedBeanPHP\\": "RedBeanPHP"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "BSD-3-Clause"
-            ],
-            "authors": [
-                {
-                    "name": "Gabor de Mooij",
-                    "email": "gabor@redbeanphp.com",
-                    "homepage": "https://redbeanphp.com"
-                }
-            ],
-            "description": "RedBeanPHP ORM",
-            "homepage": "https://redbeanphp.com/",
-            "keywords": [
-                "orm"
-            ],
-            "support": {
-                "issues": "https://github.com/gabordemooij/redbean/issues",
-                "source": "https://github.com/gabordemooij/redbean/tree/v5.7.6"
-            },
-            "time": "2026-04-30T15:47:40+00:00"
         },
         {
             "name": "phpmailer/phpmailer",
