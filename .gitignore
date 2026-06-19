@@ -1,134 +1,29 @@
-# upMVC .gitignore
-
-# Debug and testing files
-zbug/
-/zbug/
-tests/
-/tests/
-.phpunit.cache/
-
-# Internal planning and features (top secret)
-vault/
-/vault/**
-private-vault/
-
-# Database seed data (test/ghost data — never commit to production)
-database/saas-seed.sql
-
-# Storage (uploads, cache, generated files)
-storage/
-
-# Local tools folder (DB managers, one-off scripts, local helpers)
-# Committed schema/migrations live in /database — this is for local tooling only
-tools/
-
-# Logs
-logs/
-*.log
-
-# Vendor dependencies
 vendor/
-node_modules/
+storage/
+logs/
+cache/
+tmp/
+temp/
 
-# Environment files
 .env
 .env.local
 .env.production
 
-# IDE files
+.phpunit.cache/
+coverage/
+
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
 
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Temporary files
-tmp/
-temp/
-*.tmp
-*.temp
-
-# Cache files
-cache/
+*.log
 *.cache
-
-# Database dumps (keep database/demo.sql and database/migrate.php)
-database/*.sql
-!database/demo.sql
-*.db
-*.sqlite
-
-# Uploaded files (if not needed in repo)
-uploads/
-files/
-
-# Compiled files
-*.com
-*.class
-*.dll
-*.exe
-*.o
-*.so
-
-# Backup files
+*.tmp
 *.bak
 *.backup
 *.old
 
-# Package files
-*.7z
-*.dmg
-*.gz
-*.iso
-*.jar
-*.rar
-*.tar
-*.zip
-
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
-
-# Coverage directory used by tools like istanbul
-coverage/
-
-# Dependency directories
-jspm_packages/
-
-# Optional npm cache directory
-.npm
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variables file
-.env
-
-# Configuration files with sensitive data
-config/local.php
-config/production.php
-
-# Error logs
-error.log
-error_log
-
-# PHP specific
 composer.phar
-/vendor/
+node_modules/
+
+Thumbs.db
+.DS_Store
