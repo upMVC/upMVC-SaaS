@@ -2,10 +2,28 @@
     "name": "bitshost/upmvc-saas",
     "description": "upMVC-SaaS. Multi-tenant SaaS starter built on the upMVC PHP framework. Modular MVC, JWT auth, tenant isolation, rate limiting, plan gating.",
     "type": "project",
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "prefer-stable": true,
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../upMVC",
+            "options": {
+                "symlink": true
+            }
+        },
+        {
+            "type": "path",
+            "url": "../upMVC-SaaS-Pack",
+            "options": {
+                "symlink": true
+            }
+        }
+    ],
     "require": {
         "php": ">=8.1",
+        "bitshost/upmvc": "dev-feature/package-module-packs as 2.1.0",
+        "bitshost/upmvc-saas-pack": "dev-main as 1.0.0",
         "phpmailer/phpmailer": "^6.9"
     },
     "require-dev": {

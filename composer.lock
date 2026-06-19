@@ -4,8 +4,148 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "810cb113ee4afe7ba0c407b6d6d1c7b2",
+    "content-hash": "e881e46f396575ee6c180bba389d42b1",
     "packages": [
+        {
+            "name": "bitshost/upmvc",
+            "version": "dev-feature/package-module-packs",
+            "dist": {
+                "type": "path",
+                "url": "../upMVC",
+                "reference": "a4cf293dc8109d50a51840f1c345cfdfc8f03864"
+            },
+            "require": {
+                "gabordemooij/redbean": "^5.7",
+                "php": ">=8.1",
+                "phpmailer/phpmailer": "^6.9"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "project",
+            "autoload": {
+                "psr-4": {
+                    "App\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adrian D",
+                    "email": "contact@delvirai.net",
+                    "homepage": "https://upmvc.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "upMVC. Modular Model View Controller. A modular PHP MVC system with integrated routing for scalable and organized web applications. Built-in Namespace Support. Object-Oriented Programming (OOP).",
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "bitshost/upmvc-saas-pack",
+            "version": "dev-main",
+            "dist": {
+                "type": "path",
+                "url": "../upMVC-SaaS-Pack",
+                "reference": "823f5f872ee0c669b80cd8c33e549cb5c4c02d87"
+            },
+            "require": {
+                "bitshost/upmvc": "^2.1",
+                "php": ">=8.1",
+                "phpmailer/phpmailer": "^6.9"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^11.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "App\\Modules\\": "src/Modules/",
+                    "BitsHost\\UpmvcSaas\\": "src/Saas/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adrian D",
+                    "email": "contact@delvirai.net",
+                    "homepage": "https://upmvc.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Installable SaaS module pack for upMVC: tenants, JWT auth flows, plans, platform admin, and tenant web shells.",
+            "homepage": "https://upmvc.com",
+            "keywords": [
+                "feature-flags",
+                "jwt",
+                "module-pack",
+                "multi-tenant",
+                "platform-admin",
+                "saas",
+                "tenant-management",
+                "upmvc"
+            ],
+            "transport-options": {
+                "symlink": true,
+                "relative": true
+            }
+        },
+        {
+            "name": "gabordemooij/redbean",
+            "version": "v5.7.6",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/gabordemooij/redbean.git",
+                "reference": "5d678eba2d1e1ad203bc19c35b3c0d50b560a26c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/gabordemooij/redbean/zipball/5d678eba2d1e1ad203bc19c35b3c0d50b560a26c",
+                "reference": "5d678eba2d1e1ad203bc19c35b3c0d50b560a26c",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.4"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "RedBeanPHP/Functions.php"
+                ],
+                "psr-4": {
+                    "RedBeanPHP\\": "RedBeanPHP"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Gabor de Mooij",
+                    "email": "gabor@redbeanphp.com",
+                    "homepage": "https://redbeanphp.com"
+                }
+            ],
+            "description": "RedBeanPHP ORM",
+            "homepage": "https://redbeanphp.com/",
+            "keywords": [
+                "orm"
+            ],
+            "support": {
+                "issues": "https://github.com/gabordemooij/redbean/issues",
+                "source": "https://github.com/gabordemooij/redbean/tree/v5.7.6"
+            },
+            "time": "2026-04-30T15:47:40+00:00"
+        },
         {
             "name": "phpmailer/phpmailer",
             "version": "v6.12.0",
@@ -1924,9 +2064,25 @@
             "time": "2025-11-17T20:03:58+00:00"
         }
     ],
-    "aliases": [],
-    "minimum-stability": "stable",
-    "stability-flags": {},
+    "aliases": [
+        {
+            "package": "bitshost/upmvc",
+            "version": "dev-feature/package-module-packs",
+            "alias": "2.1.0",
+            "alias_normalized": "2.1.0.0"
+        },
+        {
+            "package": "bitshost/upmvc-saas-pack",
+            "version": "dev-main",
+            "alias": "1.0.0",
+            "alias_normalized": "1.0.0.0"
+        }
+    ],
+    "minimum-stability": "dev",
+    "stability-flags": {
+        "bitshost/upmvc": 20,
+        "bitshost/upmvc-saas-pack": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
