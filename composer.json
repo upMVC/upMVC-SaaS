@@ -9,14 +9,14 @@
             "type": "path",
             "url": "../upMVC",
             "options": {
-                "symlink": true
+                "symlink": false
             }
         },
         {
             "type": "path",
             "url": "../upMVC-SaaS-Pack",
             "options": {
-                "symlink": true
+                "symlink": false
             }
         }
     ],

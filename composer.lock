@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "be6ff7d3ed64c4482bde67ac7c0467a5",
+    "content-hash": "f0a4aa5c18c32c0568b743711cc549ff",
     "packages": [
         {
             "name": "bitshost/upmvc",
@@ -12,7 +12,7 @@
             "dist": {
                 "type": "path",
                 "url": "../upMVC",
-                "reference": "afcd6c3bd8819566ead39833c4c0fbe0ebcda69f"
+                "reference": "7a159048d1d74d2b8ff49e5ca283801246aeb7bf"
             },
             "require": {
                 "php": ">=8.1",
@@ -44,7 +44,7 @@
             ],
             "description": "upMVC. Modular Model View Controller. A modular PHP MVC system with integrated routing for scalable and organized web applications. Built-in Namespace Support. Object-Oriented Programming (OOP).",
             "transport-options": {
-                "symlink": true,
+                "symlink": false,
                 "relative": true
             }
         },
@@ -96,7 +96,7 @@
                 "upmvc"
             ],
             "transport-options": {
-                "symlink": true,
+                "symlink": false,
                 "relative": true
             }
         },
