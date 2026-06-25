@@ -1,11 +1,11 @@
 # 04 — API Modules
 
-## The Api/* pattern
+## The Api/* Pattern
 
-All business logic lives under `src/Modules/Api/`. Each subdirectory is one domain — a standard upMVC module with Controller, Model, and Routes.
+The SaaS pack ships its API modules under `vendor/bitshost/upmvc-saas-pack/src/Modules/Api/`. Each subdirectory is one domain — a standard upMVC module with Controller, Model, and Routes.
 
 ```
-src/Modules/Api/
+vendor/bitshost/upmvc-saas-pack/src/Modules/Api/
 ├── Auth/
 │   ├── Controller.php
 │   ├── Model.php
@@ -15,11 +15,11 @@ src/Modules/Api/
 └── Admin/
 ```
 
-Modules are auto-discovered by `InitModsImproved` — drop a folder with `Routes/Routes.php` and it works. No registration required.
+Modules are auto-discovered by `InitModsImproved`. Pack modules are loaded from Composer, and local app modules can be added under `src/Modules` when you need custom domains or overrides.
 
 ---
 
-## Adding your own domain module
+## Adding Your Own Domain Module
 
 Example: adding a `Bookings` module.
 
@@ -31,15 +31,15 @@ src/Modules/Api/Bookings/
 └── Routes/Routes.php
 ```
 
-**2. Controller — extends BaseApiController:**
+**2. Controller — extends SaasApiController:**
 
 ```php
 <?php
 namespace App\Modules\Api\Bookings;
 
-use App\Common\Bmvc\BaseApiController;
+use BitsHost\UpmvcSaas\Http\SaasApiController;
 
-class Controller extends BaseApiController
+class Controller extends SaasApiController
 {
     public function index(): never
     {
@@ -101,7 +101,7 @@ That's it. The module is live.
 
 ---
 
-## BaseApiController — what you get
+## SaasApiController — what you get
 
 | Property / Method | What it provides |
 |---|---|

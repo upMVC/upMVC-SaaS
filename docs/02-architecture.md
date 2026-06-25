@@ -1,100 +1,92 @@
 # 02 — Architecture
 
-## The two layers
+## Three Pieces
 
-upMVC-SaaS has two distinct layers that coexist:
+```text
+bitshost/upmvc
+  standalone project + reusable runtime/kernel
 
-### 1. API layer (`Api/*` modules)
-Stateless, JWT-authenticated, JSON responses. This is where all business logic lives. Consumed by frontends, mobile apps, or other services.
+bitshost/upmvc-saas-pack
+  reusable SaaS modules, middleware, provider, demo schema
 
-### 2. Web shell layer (session-based)
-PHP-rendered HTML shells for pages that need to exist as web pages (`/platform-admin`, `/app/{slug}/admin`). These shells do minimal work — session guard, render the HTML page — and the page itself calls the API via JavaScript.
-
----
-
-## Request flow
-
+upMVC-SaaS
+  ready starter app using both packages
 ```
+
+This repo is the starter app. It intentionally keeps only app-owned files and consumes the framework and SaaS modules through Composer.
+
+## Request Flow
+
+```text
 HTTP Request
-    ↓
+  ↓
 public/index.php
-    ↓
-Start.php → bootstrap (config, error handler, session)
-    ↓
-Router → middleware pipeline
-    ├── CorsMiddleware       (all API routes)
-    ├── JwtAuthMiddleware    (routes marked ['jwt'])
-    ├── TenantMiddleware     (routes marked ['tenant'])
-    └── PlanGateMiddleware   (routes marked ['feature:x'])
-    ↓
-Controller → Model → JSON response
+  ↓
+vendor/bitshost/upmvc/src/Etc/Start.php
+  ↓
+src/Etc/packages.php
+  ↓
+BitsHost\UpmvcSaas\SaasServiceProvider
+  ↓
+Router + middleware pipeline
+  ↓
+SaaS pack module controller
 ```
 
----
+`public/index.php` defines `UPMVC_APP_ROOT`, so the kernel knows that this starter app owns `.env`, package registration, and local overrides.
 
-## Module structure
+## Module Loading
 
-```
-src/Modules/
-├── Api/
-│   ├── Auth/           POST /api/auth/login|refresh|logout
-│   ├── Plans/          GET  /api/plans, /api/plans/{id}
-│   ├── Tenants/        POST /api/tenants/register
-│   │                   GET|PATCH /api/tenants/{id}
-│   └── Admin/          GET  /api/admin/tenants|dashboard|metrics
-│                       PATCH /api/admin/tenants/{id}/status|plan
-│                       POST /api/admin/impersonate
-│                       PUT  /api/admin/plans/{id}
-├── Auth/               /auth — session login/logout (web)
-├── PlatformAdmin/      /platform-admin — web shell
-├── TenantApp/          /app/{slug}/admin — tenant web shell
-├── TenantShop/         /app/{slug} — public tenant page
-├── Home/               / — landing page
-└── Mail/               email service (not a route module)
+The kernel can scan multiple module paths.
+
+```text
+vendor/bitshost/upmvc-saas-pack/src/Modules
+src/Modules
 ```
 
----
+Pack modules are registered first. Local app modules are registered last, so app routes can override pack routes.
 
-## Middleware pipeline
+This repo does not include `src/Modules` by default. Create it only when you need local custom modules or overrides.
 
-Route middleware is declared in the Routes file per route:
+## SaaS Pack Modules
 
-```php
-$router->addRoute('/api/auth/login', Controller::class, 'login', ['cors']);
-$router->addParamRoute('/api/tenants/{id:int}', Controller::class, 'show', ['cors', 'jwt']);
-$router->addRoute('/app/{slug}/admin', Controller::class, 'admin', ['cors', 'tenant']);
-$router->addRoute('/api/feature', Controller::class, 'action', ['cors', 'jwt', 'feature:efactura']);
+The SaaS pack provides:
+
+```text
+Api/
+  Modules/Auth      POST /api/auth/login, /refresh, /logout
+  Modules/Plans     GET  /api/plans
+  Modules/Tenants   tenant registration and tenant APIs
+  Modules/Admin     platform admin APIs
+
+Auth                session login/signup pages
+PlatformAdmin       platform admin web shell
+TenantApp           tenant admin/public app shell
+TenantShop          public tenant shop shell
+Home                landing page
+Mail                PHPMailer wrapper
 ```
 
-| Key | Middleware | What it does |
-|-----|-----------|-------------|
-| `cors` | CorsMiddleware | Sets CORS headers, handles preflight |
-| `jwt` | JwtAuthMiddleware | Validates Bearer token, populates `$GLOBALS['current_user']` |
-| `tenant` | TenantMiddleware | Resolves tenant from slug/subdomain, populates `$GLOBALS['current_tenant']` |
-| `feature:x` | PlanGateMiddleware | Checks tenant has feature `x` in their plan |
+## Middleware Pipeline
 
----
+Core middleware comes from `upMVC`. SaaS-specific middleware is registered by the SaaS pack provider.
 
-## Database schema
+| Key | Source | What It Does |
+|-----|--------|--------------|
+| `cors` | upMVC | CORS headers and preflight |
+| `jwt` | upMVC | Validates Bearer token and sets `$GLOBALS['current_user']` |
+| `tenant` | SaaS pack | Resolves tenant and sets `$GLOBALS['current_tenant']` |
+| `feature:x` | SaaS pack | Checks feature flag availability |
 
+## Database
+
+The starter keeps `database/demo.sql` for a one-command demo install. Future migration files can live in the SaaS pack and be registered through the provider.
+
+Core SaaS tables:
+
+```text
+users
+tenants
+plans
+refresh_tokens
 ```
-users           id, tenant_id, username, password, name, email, role, state
-tenants         id, slug, name, plan_id, status, features (JSON), deleted_at
-plans           id, name, price, features (JSON), limits (JSON)
-refresh_tokens  id, user_id, token_hash, expires_at, revoked_at
-```
-
-Roles: `platform_admin` | `tenant_owner` | `tenant_user`
-
-Tenant status: `trial` | `active` | `suspended`
-
----
-
-## Dual authentication
-
-| System | Used for | How |
-|--------|---------|-----|
-| JWT | All `Api/*` routes | `Authorization: Bearer <token>` header |
-| Session | Web shells (`/auth`, `/platform-admin`) | `$_SESSION['logged']`, `$_SESSION['role']` |
-
-Both use the same `users` table and bcrypt passwords. A user can authenticate via either system independently.

@@ -5,36 +5,48 @@
 - PHP 8.1+
 - MySQL 5.7+ / MariaDB 10.3+
 - Composer
-- Apache with mod_rewrite (or Nginx equivalent)
+- Apache with mod_rewrite, Nginx equivalent, or PHP built-in server
 
----
+## 1. Install Dependencies
 
-## 1. Fork or clone
+For local development on the current branches, keep these sibling folders:
+
+```text
+D:\GitHub\upMVC
+D:\GitHub\upMVC-SaaS-Pack
+D:\GitHub\upMVC-SaaS
+```
+
+Then run:
 
 ```bash
-git clone https://github.com/upMVC/upMVC-SaaS.git my-saas
-cd my-saas
 composer install
 ```
 
----
+Composer uses local path repositories for:
 
-## 2. Configure environment
+- `bitshost/upmvc`
+- `bitshost/upmvc-saas-pack`
 
-Copy the example and fill in your values:
+## 2. Configure Environment
+
+The setup script can create `src/Etc/.env` and generate secrets:
 
 ```bash
-cp src/Etc/.env.example src/Etc/.env
+php scripts/setup.php
 ```
 
-Minimum required:
+Or copy manually:
+
+```bash
+copy src\Etc\.env.example src\Etc\.env
+```
+
+Minimum values:
 
 ```env
-APP_ENV=development
-APP_DEBUG=true
-
 DOMAIN_NAME=http://localhost
-SITE_PATH=/my-saas/public
+SITE_PATH=
 
 DB_HOST=localhost
 DB_PORT=3306
@@ -43,90 +55,52 @@ DB_USER=root
 DB_PASS=
 
 JWT_SECRET=your-random-secret-minimum-32-chars
-JWT_ACCESS_TTL=3600
-JWT_REFRESH_TTL=2592000
-
-MAIL_HOST=smtp.mailtrap.io
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_ENCRYPTION=ssl
-MAIL_PORT=465
+APP_KEY=your-app-key
 ```
 
-> `JWT_SECRET` is required. The app throws a `RuntimeException` on first request if it is missing.
+When serving with `php -S localhost:8000 -t public`, use an empty `SITE_PATH`.
 
----
-
-## 3. Run migrations
+## 3. Import Demo Schema And Data
 
 ```bash
-mysql -u root my_saas_db < database/migrations/001_base_schema.sql
-mysql -u root my_saas_db < database/migrations/002_saas_layer.sql
+mysql -u root -p my_saas_db < database/demo.sql
 ```
 
-This creates: `users`, `tenants`, `plans`, `refresh_tokens` and seeds three default plans (Free, Starter, Pro).
+The demo creates:
 
----
+- `users`
+- `tenants`
+- `plans`
+- `refresh_tokens`
+- demo tenants and users
 
-## 4. Create a platform admin user
+Default credentials are documented at the top of `database/demo.sql`.
 
-Run this once against your database:
+## 4. Run
 
-```sql
-INSERT INTO users (tenant_id, name, username, email, password, token, state, role)
-VALUES (
-    NULL,
-    'Platform Admin',
-    'admin',
-    'admin@yourapp.com',
-    '$2y$10$...bcrypt-hash-of-your-password...',
-    '',
-    1,
-    'platform_admin'
-);
+```bash
+php -S localhost:8000 -t public
 ```
 
-Generate the bcrypt hash in PHP:
+Open:
+
+| URL | Result |
+|-----|--------|
+| `/auth` | Login page |
+| `/platform-admin` | Platform admin |
+| `/app` | Tenant app redirect |
+| `/app/{slug}` | Public tenant page |
+| `/shop/{slug}` | Tenant shop |
+
+## 5. Validate Package Loading
+
+The starter enables the SaaS pack through:
+
 ```php
-echo password_hash('YourPassword123!', PASSWORD_BCRYPT);
+// src/Etc/packages.php
+return [
+    \BitsHost\UpmvcSaas\SaasServiceProvider::class,
+];
 ```
 
----
-
-## 5. Point your web server to `/public`
-
-Apache virtual host example:
-
-```apache
-DocumentRoot /var/www/my-saas/public
-<Directory /var/www/my-saas/public>
-    AllowOverride All
-</Directory>
-```
-
-The `public/.htaccess` handles all routing automatically.
-
----
-
-## 6. Test the API
-
-```bash
-# Should return the three default plans
-curl http://localhost/my-saas/public/api/plans
-
-# Register your first tenant
-curl -X POST http://localhost/my-saas/public/api/tenants/register \
-  -H "Content-Type: application/json" \
-  -d '{"slug":"acme","name":"Acme Corp","username":"acme.admin","email":"admin@acme.com","password":"Test1234!"}'
-
-# Login
-curl -X POST http://localhost/my-saas/public/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"username":"acme.admin","password":"Test1234!"}'
-```
-
----
-
-## 7. Access the platform admin dashboard
-
-Log in at `/auth` with your platform admin credentials, then visit `/platform-admin`.
+If routes from the SaaS pack are available, the composed architecture is working.

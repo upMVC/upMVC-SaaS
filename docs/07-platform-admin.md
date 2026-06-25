@@ -56,7 +56,7 @@ To log in as platform admin: go to `/auth`, enter your `platform_admin` credenti
 
 ## Adding platform admin features
 
-Add methods to `src/Modules/Api/Admin/Controller.php` and `Model.php`, register routes in `src/Modules/Api/Admin/Routes/Routes.php`.
+For reusable changes, add methods in `upMVC-SaaS-Pack` under `src/Modules/Api/Modules/Admin`. For project-specific changes, create a local override module under this starter's `src/Modules` using the same route paths.
 
 Example — suspend all trial tenants older than 30 days:
 
