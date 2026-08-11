@@ -212,3 +212,38 @@ INSERT INTO refresh_tokens (user_id, token_hash, expires_at, created_at, revoked
 --   feature:efactura         + freeuser   → 403
 --   feature:advanced_reports + techforge  → 403 (Starter)
 --   feature:advanced_reports + bitsworld  → PASS (Pro)
+
+-- -----------------------------------------------
+-- Demo passwords — plain text
+--
+-- The `users` table stores bcrypt hashes, so the values actually sent to SQL
+-- above are unreadable. Every account in this file is listed here in plain
+-- text so the demo can be logged into. Two passwords cover all eight users.
+--
+-- DEMO DATA ONLY. Never load this file into production, and never reuse these
+-- passwords for a real account.
+-- -----------------------------------------------
+--
+-- | id | username       | password   | role           | tenant          | state    |
+-- |----|----------------|------------|----------------|-----------------|----------|
+-- |  1 | admin          | Admin5678! | platform_admin | (none)          | active   |
+-- |  2 | john.owner     | Test1234!  | tenant_owner   | bitsworld (Pro) | active   |
+-- |  3 | maria.staff    | Test1234!  | tenant_user    | bitsworld (Pro) | active   |
+-- |  4 | ghost.inactive | Test1234!  | tenant_user    | bitsworld (Pro) | INACTIVE |
+-- |  5 | tech.admin     | Test1234!  | tenant_owner   | techforge (Starter) | active   |
+-- |  6 | free.owner     | Test1234!  | tenant_owner   | freeuser (Free) | active   |
+-- |  7 | trial.owner    | Test1234!  | tenant_owner   | trialco (trial) | active   |
+-- |  8 | dark.owner     | Test1234!  | tenant_owner   | darkstar (SUSPENDED) | active   |
+--
+-- Short version:
+--   admin         → Admin5678!
+--   everyone else → Test1234!
+--
+-- Note on ids 7 and 8: the accounts are active, but logging in is not the
+-- whole story — trialco has not started its trial and darkstar is suspended,
+-- so TenantMiddleware returns 403 on /app/trialco/... and /app/darkstar/...
+-- even with a valid JWT. Id 4 (ghost.inactive) fails earlier, at login, with
+-- 403 account inactive.
+--
+-- To regenerate a hash after changing a password here:
+--   php -r "echo password_hash('YourNewPassword', PASSWORD_DEFAULT), PHP_EOL;"
