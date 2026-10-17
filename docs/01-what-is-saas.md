@@ -2,57 +2,52 @@
 
 ## The short version
 
-**upMVC-SaaS** is a layer on top of upMVC that solves the infrastructure problems every SaaS product has to solve before writing a single line of business logic:
+**upMVC-SaaS** is a **thin composed host** — not a framework fork. It wires Packagist libraries so you can start a multi-tenant product without rewriting auth, tenancy, or ops:
 
-- Who is logged in? (JWT authentication)
-- Which tenant does this request belong to? (tenant isolation)
-- What features can this tenant use? (plan gating)
-- How do we manage tenants, plans, and users as a platform operator? (platform admin)
+- Who is logged in? (JWT — kernel + pack Auth)
+- Which tenant? (`tenant` middleware, `tenant_id` scoping)
+- What can this plan use? (feature gates)
+- How do operators run the platform? (platform admin + Harvest ops)
 
-Once these are solved at the infrastructure level, you focus entirely on your domain.
-
----
-
-## The problem it solves
-
-Building a SaaS from scratch means spending weeks — sometimes months — on infrastructure before you touch the actual product. Auth, multi-tenancy, billing tiers, admin dashboards. Every SaaS needs them. None of it is your competitive advantage.
-
-upMVC-SaaS gives you that infrastructure as a clean starting point, built on the same modular upMVC philosophy: simple, no magic, full control.
+Your competitive advantage is **domain modules**, not another copy of mail/notify/audit.
 
 ---
 
-## Where it sits in the stack
+## Where it sits
 
-```
-Your product (cars, invoices, bookings, whatever)
+```text
+Your product modules (bookings, assets, invoices, …)
         ↓
-   upMVC-SaaS   ← tenant isolation, JWT, plans, platform admin
+this starter (public/, .env, packages.php, thin overrides)
         ↓
-     upMVC      ← routing, modules, MVC, middleware, config
+upmvc-saas-pack   ← tenancy + Harvest (mail, notify, audit, MFA, i18n, …)
+upmvc-payments-pack (optional)
         ↓
-      PHP 8.1+
+upmvc             ← routing, modules, JWT middleware, migrate tool
+        ↓
+PHP 8.1+
 ```
 
-Your product fills in the `Api/*` modules. Everything below is already there.
+You `composer require` the floor. You register providers. You migrate. You build `src/Modules/Api/Modules/{Domain}/`.
 
 ---
 
 ## What it is NOT
 
-- It is not a framework — upMVC is the framework
-- It is not opinionated about your domain — bring your own tables, your own business logic
-- It is not mandatory to follow the exact structure — the `Api/*` pattern is a recommendation, not a rule
-- It is not a hosted service — you own and run your own code
-
-See [08 — Your Way](08-your-way.md) for how to adapt it to your own approach.
+- Not a second framework — **upMVC** is the kernel
+- Not a place to paste vertical product code into the pack
+- Not a hosted SaaS — you own and run the code
+- Not “fork upMVC and add tenants” — that era is over; use packs
 
 ---
 
-## The lineage
+## Lineage (compose)
 
-```
-upMVC → upMVC-SaaS → your product
+```text
+upMVC + saas-pack (+ payments) → this starter → your product
 ```
 
-A real-world example of a product built on this stack:
-[crs-upmvc](https://github.com/upMVC/crs-upmvc) — a multi-tenant car rental SaaS with 21 API modules, dynamic pricing, reservations, payments, and extras. Same pattern, fully extended.
+Structure reference (layout only): [myCMMS-PHP](https://github.com/BitsHost/myCMMS-PHP).  
+Teach-to-fish guide: [BUILD_SAAS_APP](https://github.com/upMVC/upMVC/blob/main/docs/BUILD_SAAS_APP.md).
+
+See [08 — Your Way](08-your-way.md) for adapting without breaking boundaries.

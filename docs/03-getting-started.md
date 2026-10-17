@@ -5,96 +5,88 @@
 - PHP 8.1+
 - MySQL 5.7+ / MariaDB 10.3+
 - Composer
-- Apache with mod_rewrite, Nginx equivalent, or PHP built-in server
+- Apache + mod_rewrite, Nginx, or `php -S`
 
-## 1. Install Dependencies
-
-For local development on the current branches, keep these sibling folders:
-
-```text
-D:\GitHub\upMVC
-D:\GitHub\upMVC-SaaS-Pack
-D:\GitHub\upMVC-SaaS
-```
-
-Then run:
+## 1. Install
 
 ```bash
-composer install
+composer create-project bitshost/upmvc-saas my-saas
+cd my-saas
 ```
 
-Composer uses local path repositories for:
+Or clone this repo and run `composer install`.
 
-- `bitshost/upmvc`
-- `bitshost/upmvc-saas-pack`
+Pins (Packagist):
 
-## 2. Configure Environment
+```json
+"bitshost/upmvc": "^2.5",
+"bitshost/upmvc-saas-pack": "^1.1"
+```
 
-The setup script can create `src/Etc/.env` and generate secrets:
+## 2. Configure environment
 
 ```bash
 php scripts/setup.php
 ```
 
-Or copy manually:
+Or copy `src/Etc/.env.example` → `src/Etc/.env`.
 
-```bash
-copy src\Etc\.env.example src\Etc\.env
-```
-
-Minimum values:
+Minimum:
 
 ```env
-DOMAIN_NAME=http://localhost
+DOMAIN_NAME=http://localhost:8000
 SITE_PATH=
 
 DB_HOST=localhost
 DB_PORT=3306
-DB_NAME=my_saas_db
+DB_NAME=upmvc_saas
 DB_USER=root
 DB_PASS=
 
 JWT_SECRET=your-random-secret-minimum-32-chars
 APP_KEY=your-app-key
+APP_ENV=development
 ```
 
-When serving with `php -S localhost:8000 -t public`, use an empty `SITE_PATH`.
+Built-in server: empty `SITE_PATH`. XAMPP subfolder: set `SITE_PATH` to the public path (e.g. `/upMVC-SaaS/public`).
 
-## 3. Import Demo Schema And Data
+## 3. Migrate (preferred)
 
 ```bash
-mysql -u root -p my_saas_db < database/demo.sql
+php vendor/bitshost/upmvc/src/Tools/migrate.php
 ```
 
-The demo creates:
+You get kernel `users` + pack SaaS tables (`001`) + Harvest ops (`002`).
 
-- `users`
-- `tenants`
-- `plans`
-- `refresh_tokens`
-- demo tenants and users
+Optional demo users/tenants from the pack:
 
-Default credentials are documented at the top of `database/demo.sql`.
+```bash
+mysql -u root -p upmvc_saas < vendor/bitshost/upmvc-saas-pack/database/seed.sql
+```
 
-## 4. Run
+**Alternative shortcut:** `mysql … < database/demo.sql` (legacy one-shot). Prefer migrate + pack seed for new installs.
+
+## 4. Doctor
+
+```bash
+php vendor/bitshost/upmvc-saas-pack/bin/saas-next.php doctor
+php vendor/bitshost/upmvc-saas-pack/bin/saas-next.php packs
+```
+
+## 5. Run
 
 ```bash
 php -S localhost:8000 -t public
 ```
 
-Open:
-
 | URL | Result |
 |-----|--------|
-| `/auth` | Login page |
+| `/auth` | Login |
 | `/platform-admin` | Platform admin |
-| `/app` | Tenant app redirect |
-| `/app/{slug}` | Public tenant page |
-| `/shop/{slug}` | Tenant shop |
+| `/app` / `/app/{slug}` | Tenant app / public |
+| `/shop/{slug}` | Shop shell |
 
-## 5. Validate Package Loading
-
-The starter enables the SaaS pack through:
+## 6. Providers
 
 ```php
 // src/Etc/packages.php
@@ -103,4 +95,10 @@ return [
 ];
 ```
 
-If routes from the SaaS pack are available, the composed architecture is working.
+If pack routes answer, the compose stack is working.
+
+## Next
+
+- Scaffold a domain: `php vendor/bitshost/upmvc-saas-pack/bin/saas-next.php scaffold-domain Bookings`
+- Full guide: [BUILD_SAAS_APP](https://github.com/upMVC/upMVC/blob/main/docs/BUILD_SAAS_APP.md)
+- Harvest: [docs/09](https://github.com/upMVC/upMVC-SaaS-Pack/blob/master/docs/09-harvest-ops.md)

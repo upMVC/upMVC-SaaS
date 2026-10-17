@@ -1,36 +1,47 @@
 # upMVC-SaaS Starter Documentation
 
-`upMVC-SaaS` is now the composed starter application:
-
 ```text
-upMVC-SaaS = upMVC kernel + upMVC-SaaS-Pack + app config
+upMVC-SaaS = bitshost/upmvc (^2.5) + bitshost/upmvc-saas-pack (^1.1) + thin host
 ```
 
-This documentation covers the starter app and the SaaS product flow. Framework internals live in [`upMVC`](https://github.com/upMVC/upMVC). Reusable SaaS modules live in [`upMVC-SaaS-Pack`](https://github.com/upMVC/upMVC-SaaS-Pack).
+Optional later: `bitshost/upmvc-payments-pack`.
+
+This documentation covers the **starter host**. Kernel internals: [upMVC](https://github.com/upMVC/upMVC). Reusable SaaS floor: [upMVC-SaaS-Pack](https://github.com/upMVC/upMVC-SaaS-Pack). Compose how-to: [BUILD_SAAS_APP](https://github.com/upMVC/upMVC/blob/main/docs/BUILD_SAAS_APP.md).
 
 ## Documentation Index
 
-| Doc | What It Covers |
+| Doc | What it covers |
 |-----|----------------|
-| [01 — What is upMVC-SaaS](01-what-is-saas.md) | The starter concept and SaaS goal |
-| [02 — Architecture](02-architecture.md) | Composer packages, request flow, module loading |
-| [03 — Getting Started](03-getting-started.md) | Install, configure, import demo data, run |
-| [04 — API Modules](04-api-modules.md) | SaaS pack API module conventions |
-| [05 — Auth & JWT](05-auth-jwt.md) | Login, refresh tokens, JWT context |
+| [01 — What is upMVC-SaaS](01-what-is-saas.md) | Composed starter vs packs |
+| [02 — Architecture](02-architecture.md) | Providers, request flow, Harvest, migrations |
+| [03 — Getting Started](03-getting-started.md) | Packagist install, migrate, saas-next |
+| [04 — API Modules](04-api-modules.md) | Domain modules under `Api/Modules/{Domain}` |
+| [05 — Auth & JWT](05-auth-jwt.md) | Login, refresh, JWT context |
 | [06 — Tenants & Plans](06-tenants-plans.md) | Tenants, plans, feature gating |
-| [07 — Platform Admin](07-platform-admin.md) | Admin shell, impersonation, tenant control |
-| [08 — Your Way](08-your-way.md) | How to customize or override pack behavior |
+| [07 — Platform Admin](07-platform-admin.md) | Admin shell, impersonation |
+| [08 — Your Way](08-your-way.md) | Customize without forking packs |
 
-## Quick Orientation
+## External guides (use these)
+
+| Guide | Why |
+|-------|-----|
+| [BUILD_SAAS_APP](https://github.com/upMVC/upMVC/blob/main/docs/BUILD_SAAS_APP.md) | N-step compose floor |
+| [saas-next](https://github.com/upMVC/upMVC-SaaS-Pack/blob/master/docs/SAAS_NEXT.md) | `doctor` / `init` / `agent` / `scaffold-domain` |
+| [Harvest ops](https://github.com/upMVC/upMVC-SaaS-Pack/blob/master/docs/09-harvest-ops.md) | Mail, notify, audit, TOTP, dual-unseal |
+| [Payments pack](https://github.com/upMVC/upMVC-Payments-Pack) | Gateways + `payment_intents` |
+
+## Quick orientation
 
 ```text
-public/index.php          app entry point
-src/Etc/.env.example      app environment template
-src/Etc/packages.php      enables the SaaS pack
-database/demo.sql         demo schema and data
-vendor/bitshost/upmvc     framework/runtime
+public/index.php              UPMVC_APP_ROOT + boot
+src/Etc/.env.example          env template
+src/Etc/packages.php          SaasServiceProvider (+ optional payments)
+src/Modules/…                 your domains / overrides
+AGENTS.md                     Cursor compose rules
+vendor/bitshost/upmvc
 vendor/bitshost/upmvc-saas-pack
-  src/Modules/*           SaaS modules
+  migrations 001 / 002        SaaS + Harvest tables
+  bin/saas-next.php           host helper
 ```
 
-Add local overrides in `src/Modules` only when you need to replace or extend a pack module.
+Prefer **migrate** over copying schema by hand. Seed from the pack when you want demo logins.
