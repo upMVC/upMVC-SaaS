@@ -4,21 +4,28 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f1f5675042849d0f289578d5335310b6",
+    "content-hash": "46128b57901cbcd2259f433526b477dd",
     "packages": [
         {
             "name": "bitshost/upmvc",
-            "version": "dev-feature/package-module-packs",
+            "version": "2.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/upMVC/upMVC.git",
+                "reference": "a195a8db66fd221c99e9273be56c491af4810b5f"
+            },
             "dist": {
-                "type": "path",
-                "url": "../upMVC",
-                "reference": "7a159048d1d74d2b8ff49e5ca283801246aeb7bf"
+                "type": "zip",
+                "url": "https://api.github.com/repos/upMVC/upMVC/zipball/a195a8db66fd221c99e9273be56c491af4810b5f",
+                "reference": "a195a8db66fd221c99e9273be56c491af4810b5f",
+                "shasum": ""
             },
             "require": {
                 "php": ">=8.1",
                 "phpmailer/phpmailer": "^6.9"
             },
             "require-dev": {
+                "gabordemooij/redbean": "^5.7",
                 "phpstan/phpstan": "^1.10",
                 "phpunit/phpunit": "^11.0"
             },
@@ -31,6 +38,7 @@
                     "App\\": "src/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -43,21 +51,28 @@
                 }
             ],
             "description": "upMVC. Modular Model View Controller. A modular PHP MVC system with integrated routing for scalable and organized web applications. Built-in Namespace Support. Object-Oriented Programming (OOP).",
-            "transport-options": {
-                "symlink": false,
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/upMVC/upMVC/issues",
+                "source": "https://github.com/upMVC/upMVC/tree/2.5.0"
+            },
+            "time": "2026-08-02T12:29:41+00:00"
         },
         {
             "name": "bitshost/upmvc-saas-pack",
-            "version": "dev-master",
+            "version": "v1.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/upMVC/upMVC-SaaS-Pack.git",
+                "reference": "580f4367be2c986d17f18f9bad9ba0a0cd865ae3"
+            },
             "dist": {
-                "type": "path",
-                "url": "../upMVC-SaaS-Pack",
-                "reference": "d8e1ad9062442bc36fe23e09ecd19463b3b9b8ad"
+                "type": "zip",
+                "url": "https://api.github.com/repos/upMVC/upMVC-SaaS-Pack/zipball/580f4367be2c986d17f18f9bad9ba0a0cd865ae3",
+                "reference": "580f4367be2c986d17f18f9bad9ba0a0cd865ae3",
+                "shasum": ""
             },
             "require": {
-                "bitshost/upmvc": "^2.1",
+                "bitshost/upmvc": "^2.4",
                 "php": ">=8.1",
                 "phpmailer/phpmailer": "^6.9"
             },
@@ -72,6 +87,7 @@
                     "BitsHost\\UpmvcSaas\\": "src/Saas/"
                 }
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
             ],
@@ -95,10 +111,11 @@
                 "tenant-management",
                 "upmvc"
             ],
-            "transport-options": {
-                "symlink": false,
-                "relative": true
-            }
+            "support": {
+                "issues": "https://github.com/upMVC/upMVC-SaaS-Pack/issues",
+                "source": "https://github.com/upMVC/upMVC-SaaS-Pack/tree/v1.1.0"
+            },
+            "time": "2026-10-17T11:28:41+00:00"
         },
         {
             "name": "phpmailer/phpmailer",
@@ -245,25 +262,9 @@
         }
     ],
     "packages-dev": [],
-    "aliases": [
-        {
-            "package": "bitshost/upmvc",
-            "version": "dev-feature/package-module-packs",
-            "alias": "2.1.0",
-            "alias_normalized": "2.1.0.0"
-        },
-        {
-            "package": "bitshost/upmvc-saas-pack",
-            "version": "9999999-dev",
-            "alias": "1.0.0",
-            "alias_normalized": "1.0.0.0"
-        }
-    ],
-    "minimum-stability": "dev",
-    "stability-flags": {
-        "bitshost/upmvc": 20,
-        "bitshost/upmvc-saas-pack": 20
-    },
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {},
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
