@@ -7,6 +7,24 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
+## [Unreleased] — Compose maturity (Packagist + Harvest + saas-next)
+
+### Changed
+
+- **`composer.json`** — Packagist pins `bitshost/upmvc:^2.5` and `bitshost/upmvc-saas-pack:^1.1`; removed default path repositories and `dev-*` aliases. Suggests `bitshost/upmvc-payments-pack`. Autoload adds `App\\Modules\\`.
+- **`README.md` / `docs/*`** — Document composed starter: BUILD_SAAS_APP, migrate-first DB story, Harvest, saas-next, payments boundary. Correct domain path to `src/Modules/Api/Modules/{Domain}/`.
+- **`.env.example`** — Align with saas-kit keys (`DOMAIN_NAME`, empty `SITE_PATH` for built-in server, `APP_KEY` / `JWT_SECRET`, Harvest mail notes).
+- **`packages.php`** — Commented optional `PaymentsServiceProvider`.
+- **`scripts/setup.php`** — Next steps point at migrate + saas-next doctor + pack seed.
+- **`AGENTS.md`** — Host agent template for Cursor (compose rules).
+
+### Notes
+
+- Host `Billing` (Stripe Checkout) remains a demo override; prefer payments-pack for new payment-intent work.
+- `database/demo.sql` kept as optional shortcut; prefer kernel migrate + pack `001`/`002` + pack seed.
+
+---
+
 ## [0.1.0-beta] — 2026-06-07
 
 Initial public beta release.

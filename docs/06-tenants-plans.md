@@ -81,7 +81,7 @@ Resolved tenant is stored in `$GLOBALS['current_tenant']` for the duration of th
 
 ## Customising plans
 
-Edit the demo seed data in `database/demo.sql`, add a future migration in the SaaS pack, or update directly:
+Edit pack seed (`vendor/bitshost/upmvc-saas-pack/database/seed.sql`), add a pack/app migration, or update directly. Prefer migrate over one-shot `database/demo.sql` for new installs:
 
 ```sql
 UPDATE plans SET

@@ -1,31 +1,34 @@
 # 04 — API Modules
 
-## The Api/* Pattern
+## The Api/Modules pattern
 
-The SaaS pack ships its API modules under `vendor/bitshost/upmvc-saas-pack/src/Modules/Api/`. Each subdirectory is one domain — a standard upMVC module with Controller, Model, and Routes.
+Pack APIs live under `vendor/bitshost/upmvc-saas-pack/src/Modules/Api/Modules/`. Your host domains use the **same depth**:
 
-```
-vendor/bitshost/upmvc-saas-pack/src/Modules/Api/
-├── Auth/
-│   ├── Controller.php
-│   ├── Model.php
-│   └── Routes/Routes.php
-├── Plans/
-├── Tenants/
-└── Admin/
+```text
+src/Modules/Api/Modules/{Domain}/
+├── Controller.php
+├── Model.php
+└── Routes/Routes.php
 ```
 
-Modules are auto-discovered by `InitModsImproved`. Pack modules are loaded from Composer, and local app modules can be added under `src/Modules` when you need custom domains or overrides.
+**Depth matters:** the folder must include the literal `Modules` segment. `src/Modules/Api/Bookings/` is **not** discovered.
 
 ---
 
-## Adding Your Own Domain Module
+## Adding a domain module
 
-Example: adding a `Bookings` module.
+Example: `Bookings`.
 
-**1. Create the folder structure:**
+**1. Scaffold (recommended):**
+
+```bash
+php vendor/bitshost/upmvc-saas-pack/bin/saas-next.php scaffold-domain Bookings
 ```
-src/Modules/Api/Bookings/
+
+Or create manually:
+
+```text
+src/Modules/Api/Modules/Bookings/
 ├── Controller.php
 ├── Model.php
 └── Routes/Routes.php
@@ -35,7 +38,7 @@ src/Modules/Api/Bookings/
 
 ```php
 <?php
-namespace App\Modules\Api\Bookings;
+namespace App\Modules\Api\Modules\Bookings;
 
 use BitsHost\UpmvcSaas\Http\SaasApiController;
 
@@ -58,11 +61,11 @@ class Controller extends SaasApiController
 }
 ```
 
-**3. Model — extends BaseModel:**
+**3. Model — always scope `tenant_id`:**
 
 ```php
 <?php
-namespace App\Modules\Api\Bookings;
+namespace App\Modules\Api\Modules\Bookings;
 
 use App\Common\Bmvc\BaseModel;
 
@@ -71,7 +74,7 @@ class Model extends BaseModel
     public function listByTenant(int $tenantId): array
     {
         $stmt = $this->conn->prepare(
-            "SELECT * FROM bookings WHERE tenant_id = :tid ORDER BY date DESC"
+            'SELECT * FROM bookings WHERE tenant_id = :tid ORDER BY date DESC'
         );
         $stmt->execute([':tid' => $tenantId]);
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -83,9 +86,9 @@ class Model extends BaseModel
 
 ```php
 <?php
-namespace App\Modules\Api\Bookings\Routes;
+namespace App\Modules\Api\Modules\Bookings\Routes;
 
-use App\Modules\Api\Bookings\Controller;
+use App\Modules\Api\Modules\Bookings\Controller;
 
 class Routes
 {
@@ -97,30 +100,32 @@ class Routes
 }
 ```
 
-That's it. The module is live.
-
 ---
 
-## SaasApiController — what you get
+## SaasApiController
 
-| Property / Method | What it provides |
+| Property / Method | Provides |
 |---|---|
-| `$this->user` | Decoded JWT payload — `sub`, `username`, `tenant_id`, `role` |
-| `$this->body()` | Parsed JSON request body |
-| `$this->requireFields(['a','b'])` | Returns body array or sends 400 if fields missing |
-| `$this->success($data, $msg, $code)` | JSON `{"success":true,"data":...}` |
-| `$this->error($msg, $code)` | JSON `{"error":"..."}` and exits |
+| `$this->user` | JWT payload — `sub`, `username`, `tenant_id`, `role` |
+| `$this->body()` | Parsed JSON body |
+| `$this->requireFields(['a','b'])` | Body or 400 |
+| `$this->success($data, $msg, $code)` | JSON success |
+| `$this->error($msg, $code)` | JSON error + exit |
 
 ---
 
-## Tenant isolation pattern
+## Tenant isolation
 
-Every model method that reads or writes tenant data must scope by `tenant_id`. This is your responsibility — the framework gives you the tenant ID via `$this->user['tenant_id']`, you use it in your queries.
+Every tenant read/write must filter by `tenant_id`. The framework gives you the id; you enforce it in SQL.
 
 ```php
-// Always scope to tenant
+// Always
 "SELECT * FROM bookings WHERE tenant_id = :tid"
 
-// Never expose cross-tenant data
-"SELECT * FROM bookings"  // ← wrong
+// Never
+"SELECT * FROM bookings"
 ```
+
+## Demo Billing vs payments pack
+
+This starter may ship `src/Modules/Api/Modules/Billing` as a **Stripe Checkout demo**. For production payment intents and drivers, require **`bitshost/upmvc-payments-pack`** and register `PaymentsServiceProvider`.
