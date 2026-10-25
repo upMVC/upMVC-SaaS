@@ -24,7 +24,7 @@ See pack **[saas-next](https://github.com/upMVC/upMVC-SaaS-Pack/blob/master/docs
 
 ## Requirements
 
-- PHP 8.1+
+- PHP 8.3+
 - Composer
 - MySQL 5.7+ / MariaDB 10.3+
 

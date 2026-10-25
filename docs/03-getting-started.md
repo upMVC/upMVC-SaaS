@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- PHP 8.1+
+- PHP 8.3+
 - MySQL 5.7+ / MariaDB 10.3+
 - Composer
 - Apache + mod_rewrite, Nginx, or `php -S`

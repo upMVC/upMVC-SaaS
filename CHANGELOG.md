@@ -11,6 +11,7 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ### Changed
 
+- **PHP floor raised to `>=8.3`** — matches kernel + packs; use a patched 8.3.x runtime.
 - **`composer.json`** — Packagist pins `bitshost/upmvc:^2.5` and `bitshost/upmvc-saas-pack:^1.1`; removed default path repositories and `dev-*` aliases. Suggests `bitshost/upmvc-payments-pack`. Autoload adds `App\\Modules\\`.
 - **`README.md` / `docs/*`** — Document composed starter: BUILD_SAAS_APP, migrate-first DB story, Harvest, saas-next, payments boundary. Correct domain path to `src/Modules/Api/Modules/{Domain}/`.
 - **`.env.example`** — Align with saas-kit keys (`DOMAIN_NAME`, empty `SITE_PATH` for built-in server, `APP_KEY` / `JWT_SECRET`, Harvest mail notes).

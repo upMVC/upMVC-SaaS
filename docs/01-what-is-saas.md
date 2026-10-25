@@ -25,7 +25,7 @@ upmvc-payments-pack (optional)
         ↓
 upmvc             ← routing, modules, JWT middleware, migrate tool
         ↓
-PHP 8.1+
+PHP 8.3+
 ```
 
 You `composer require` the floor. You register providers. You migrate. You build `src/Modules/Api/Modules/{Domain}/`.
