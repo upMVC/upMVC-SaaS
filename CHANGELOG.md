@@ -7,7 +7,11 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ---
 
-## [Unreleased] — Compose maturity (Packagist + Harvest + saas-next)
+## [Unreleased]
+
+## [1.1.0] — Compose maturity + PHP 8.3 (2026-11-02)
+
+Thin composed starter aligned with **upMVC 2.6** and **saas-pack 1.2**. Requires **PHP 8.3+**.
 
 ### Changed
 

@@ -8,20 +8,20 @@
     "packages": [
         {
             "name": "bitshost/upmvc",
-            "version": "2.5.0",
+            "version": "2.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/upMVC/upMVC.git",
-                "reference": "a195a8db66fd221c99e9273be56c491af4810b5f"
+                "reference": "75a8185b06f774830a1d90dc75d93851dc324a9c"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/upMVC/upMVC/zipball/a195a8db66fd221c99e9273be56c491af4810b5f",
-                "reference": "a195a8db66fd221c99e9273be56c491af4810b5f",
+                "url": "https://api.github.com/repos/upMVC/upMVC/zipball/75a8185b06f774830a1d90dc75d93851dc324a9c",
+                "reference": "75a8185b06f774830a1d90dc75d93851dc324a9c",
                 "shasum": ""
             },
             "require": {
-                "php": ">=8.1",
+                "php": ">=8.3",
                 "phpmailer/phpmailer": "^6.9"
             },
             "require-dev": {
@@ -53,33 +53,36 @@
             "description": "upMVC. Modular Model View Controller. A modular PHP MVC system with integrated routing for scalable and organized web applications. Built-in Namespace Support. Object-Oriented Programming (OOP).",
             "support": {
                 "issues": "https://github.com/upMVC/upMVC/issues",
-                "source": "https://github.com/upMVC/upMVC/tree/2.5.0"
+                "source": "https://github.com/upMVC/upMVC/tree/2.6.0"
             },
-            "time": "2026-08-02T12:29:41+00:00"
+            "time": "2026-11-02T13:19:20+00:00"
         },
         {
             "name": "bitshost/upmvc-saas-pack",
-            "version": "v1.1.0",
+            "version": "v1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/upMVC/upMVC-SaaS-Pack.git",
-                "reference": "580f4367be2c986d17f18f9bad9ba0a0cd865ae3"
+                "reference": "5047612b6abfca783021744827fa5b8988fc6bd0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/upMVC/upMVC-SaaS-Pack/zipball/580f4367be2c986d17f18f9bad9ba0a0cd865ae3",
-                "reference": "580f4367be2c986d17f18f9bad9ba0a0cd865ae3",
+                "url": "https://api.github.com/repos/upMVC/upMVC-SaaS-Pack/zipball/5047612b6abfca783021744827fa5b8988fc6bd0",
+                "reference": "5047612b6abfca783021744827fa5b8988fc6bd0",
                 "shasum": ""
             },
             "require": {
-                "bitshost/upmvc": "^2.4",
-                "php": ">=8.1",
+                "bitshost/upmvc": "^2.5",
+                "php": ">=8.3",
                 "phpmailer/phpmailer": "^6.9"
             },
             "require-dev": {
                 "phpstan/phpstan": "^1.10",
                 "phpunit/phpunit": "^11.0"
             },
+            "bin": [
+                "bin/saas-next.php"
+            ],
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -99,23 +102,27 @@
                     "role": "Developer"
                 }
             ],
-            "description": "Installable SaaS module pack for upMVC: tenants, JWT auth flows, plans, platform admin, and tenant web shells.",
+            "description": "Installable SaaS module pack for upMVC: tenancy (JWT, plans, platform admin) plus Harvest ops kernel (mail, notify, audit, TOTP, i18n).",
             "homepage": "https://upmvc.com",
             "keywords": [
+                "Harvest",
+                "audit-log",
                 "feature-flags",
                 "jwt",
+                "mail-gateway",
                 "module-pack",
                 "multi-tenant",
                 "platform-admin",
                 "saas",
                 "tenant-management",
+                "totp",
                 "upmvc"
             ],
             "support": {
                 "issues": "https://github.com/upMVC/upMVC-SaaS-Pack/issues",
-                "source": "https://github.com/upMVC/upMVC-SaaS-Pack/tree/v1.1.0"
+                "source": "https://github.com/upMVC/upMVC-SaaS-Pack/tree/v1.2.0"
             },
-            "time": "2026-10-17T11:28:41+00:00"
+            "time": "2026-11-02T13:25:49+00:00"
         },
         {
             "name": "phpmailer/phpmailer",
