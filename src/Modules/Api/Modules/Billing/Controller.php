@@ -40,7 +40,10 @@ class Controller extends SaasApiController
         $session = (new StripeClient($secret))->checkout->sessions->create([
             'mode'                 => 'payment',
             'client_reference_id'  => (string) $tenantId,
-            'metadata'             => ['tenant_id' => $tenantId, 'plan_id' => $plan['id']],
+            'metadata'             => [
+                'tenant_id' => (string) $tenantId,
+                'plan_id'   => (string) $plan['id'],
+            ],
             'line_items'           => [[
                 'quantity'   => 1,
                 'price_data' => [
