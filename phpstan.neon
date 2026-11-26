@@ -1,0 +1,10 @@
+parameters:
+    level: 5
+    treatPhpDocTypesAsCertain: false
+    paths:
+        - src/Modules
+        - src/Etc/packages.php
+    excludePaths:
+        - vendor
+    bootstrapFiles:
+        - vendor/autoload.php

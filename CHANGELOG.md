@@ -9,6 +9,9 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- **QA** — PHPStan `^2.2`, PHPUnit smoke (`packages.php` + Billing autoload), Composer scripts `test` / `analyse` / `check`, GitHub Actions CI (PHP 8.3 gate / 8.4 soft).
+
 ## [1.1.0] — Compose maturity + PHP 8.3 (2026-11-02)
 
 Thin composed starter aligned with **upMVC 2.6** and **saas-pack 1.2**. Requires **PHP 8.3+**.
