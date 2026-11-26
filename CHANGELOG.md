@@ -9,8 +9,13 @@ Versioning follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [1.1.1] — Starter CI + PHPStan 2 (2026-11-26)
+
 ### Added
 - **QA** — PHPStan `^2.2`, PHPUnit smoke (`packages.php` + Billing autoload), Composer scripts `test` / `analyse` / `check`, GitHub Actions CI (PHP 8.3 gate / 8.4 soft).
+
+### Fixed
+- Stripe Checkout `metadata` values stringified for PHPStan / Stripe SDK typing.
 
 ## [1.1.0] — Compose maturity + PHP 8.3 (2026-11-02)
 
